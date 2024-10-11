@@ -70,7 +70,7 @@ jobs:
       - name: Check if container is running
         id: check-container
         run: |
-          if sudo docker ps -a | grep -q auction-service; then
+          if sudo docker ps -a | grep -q d-lab; then
             echo "is-running=true" >> $GITHUB_OUTPUT
           else
             echo "is-running=false" >> $GITHUB_OUTPUT
