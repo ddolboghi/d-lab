@@ -79,7 +79,7 @@ jobs:
           sudo docker rm d-lab
 
       - name: Run new docker container
-        run: sudo docker run -d --name d-lab -p 3000:3000 --net d-lab-network ${{secrets.DOCKERHUB_USERNAME}}/d-lab:latest
+        run: sudo docker run -d --name d-lab -p 3000:3000 --env-file .env.local --net d-lab-network ${{secrets.DOCKERHUB_USERNAME}}/d-lab:latest
 
       - name: Delete old docker image
         run: sudo docker system prune -f
