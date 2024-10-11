@@ -47,4 +47,7 @@ EXPOSE 3000
 
 ENV PORT 3000
 
+ARG PUBLIC_IP
+ENV HOSTNAME=${PUBLIC_IP}
+
 CMD ["node", "server.js"]
