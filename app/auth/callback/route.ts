@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
-import { NextRequest, NextResponse } from "next/server";
+import { redirect } from "next/navigation";
+import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   // The `/auth/callback` route is required for the server-side auth flow implemented
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
     if (!error) {
       const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === "development";
-      return NextResponse.redirect(`${origin}${next}`);
+      return redirect(`${origin}${next}`);
 
       // if (forwardedHost) {
       //   // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
@@ -26,5 +27,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/error`);
+  return redirect(`${origin}/error`);
 }
