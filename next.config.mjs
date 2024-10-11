@@ -7,9 +7,6 @@ const nextConfig = {
       fullUrl: true,
     },
   },
-  publicRuntimeConfig: {
-    HOST: process.env.HOST,
-  },
   async redirects() {
     return [
       {
