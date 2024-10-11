@@ -2,6 +2,14 @@
 const nextConfig = {
   reactStrictMode: false,
   output: "standalone",
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+  publicRuntimeConfig: {
+    HOST: process.env.HOST,
+  },
   async redirects() {
     return [
       {
