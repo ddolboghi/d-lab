@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   // https://supabase.com/docs/guides/auth/server-side/nextjs
   const { searchParams, origin } = new URL(request.url);
   console.log(origin);
+  console.log(searchParams);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/";
 
