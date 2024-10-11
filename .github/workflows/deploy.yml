@@ -54,3 +54,35 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/d-lab:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: d-lab-runner
+
+    steps:
+      - name: Pull image from docker hub
+        run: |
+          sudo docker login --username ${{secrets.DOCKERHUB_USERNAME}} --password ${{secrets.DOCKERHUB_PASSWORD}}
+          sudo docker pull ${{secrets.DOCKERHUB_USERNAME}}/d-lab:latest
+
+      - name: Check if container is running
+        id: check-container
+        run: |
+          if sudo docker ps -a | grep -q auction-service; then
+            echo "is-running=true" >> $GITHUB_OUTPUT
+          else
+            echo "is-running=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Stop and remove container
+        if: steps.check-container.outputs.is-running == 'true'
+        run: |
+          sudo docker stop d-lab
+          sudo docker rm d-lab
+
+      - name: Run new docker container
+        run: sudo docker run -d --name d-lab -p 3000:3000 --net d-lab-network ${{secrets.DOCKERHUB_USERNAME}}/d-lab:latest
+
+      - name: Delete old docker image
+        run: sudo docker system prune -f
