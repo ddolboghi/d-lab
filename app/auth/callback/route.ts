@@ -6,6 +6,7 @@ export async function GET(request: Request) {
   // by the SSR package. It exchanges an auth code for the user's session.
   // https://supabase.com/docs/guides/auth/server-side/nextjs
   const { searchParams, origin } = new URL(request.url);
+  console.log(origin);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/";
 
