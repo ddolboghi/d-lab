@@ -19,9 +19,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# debug files
-RUN ls -la
-
 RUN npm run build
 
 FROM scratch AS nextjs-cache
@@ -30,7 +27,6 @@ COPY --from=builder /app/.next/cache ./.next/cache
 FROM base AS runner
 WORKDIR /app
 
-# NODE_ENV는 GitHub Actions에서 설정할 예정입니다.
 ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs
@@ -38,9 +34,12 @@ RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/.env.production.local ./
+COPY --from=builder --chown=nextjs:nodejs /app/.env.local ./
 
 USER nextjs
 
