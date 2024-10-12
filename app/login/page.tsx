@@ -1,7 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import KakaoLoginButton from "@/components/login/KakaoLoginButton";
-import Link from "next/link";
 
 export default async function Login() {
   const {
