@@ -3,7 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
-export const kakaoLogin = async () => {
+export const googleLogin = async () => {
   const getURL = () => {
     let url = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000/";
     // Make sure to include `https://` when not localhost.
@@ -15,8 +15,9 @@ export const kakaoLogin = async () => {
 
   const supabase = createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "kakao",
+    provider: "google",
     options: {
+      queryParams: { access_type: "offline", prompt: "consent" },
       redirectTo: `${getURL()}/auth/callback?next=/main`,
     },
   });
