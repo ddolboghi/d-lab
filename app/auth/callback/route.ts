@@ -9,16 +9,16 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/";
-  console.log(origin);
 
   if (code) {
     const supabase = createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
+      const forwardedHost = request.headers.get("x-forwarded-host");
+      const protocol = request.headers.get("x-forwarded-proto");
       const isLocalEnv = process.env.NODE_ENV === "development";
-      console.log(forwardedHost);
-      return redirect(`${origin}${next}`);
+      console.log(isLocalEnv, origin, protocol, forwardedHost);
+      return redirect(next);
 
       // if (forwardedHost) {
       //   // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
@@ -29,5 +29,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return redirect(`${origin}/error`);
+  return redirect("/error");
 }
