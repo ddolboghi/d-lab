@@ -10,6 +10,8 @@ export const kakaoLogin = async () => {
     url = url.startsWith("http") ? url : `https://${url}`;
     // Make sure to include a trailing `/`.
     url = url.endsWith("/") ? url : `${url}/`;
+    console.log(url);
+    console.error(url);
     return url;
   };
 
