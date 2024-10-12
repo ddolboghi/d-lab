@@ -18,7 +18,6 @@ export default async function Login() {
       <div className="flex flex-col gap-2">
         <KakaoLoginButton />
       </div>
-      <Link href="/error">에러페이지로 이동</Link>
     </main>
   );
 }
