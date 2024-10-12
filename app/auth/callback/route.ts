@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     if (!error) {
       const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === "development";
+      console.log(forwardedHost);
       return redirect(`${origin}${next}`);
 
       // if (forwardedHost) {
