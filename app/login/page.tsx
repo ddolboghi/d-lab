@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import KakaoLoginButton from "@/components/login/KakaoLoginButton";
+import Link from "next/link";
 
 export default async function Login() {
   const {
@@ -17,6 +18,7 @@ export default async function Login() {
       <div className="flex flex-col gap-2">
         <KakaoLoginButton />
       </div>
+      <Link href="/main">메인페이지로 이동</Link>
     </main>
   );
 }
