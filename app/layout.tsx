@@ -8,14 +8,14 @@ const pretendard = localFont({
   variable: "--font-pretendard",
 });
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
+const defaultUrl = process.env.NEXT_PUBLIC_SITE_URL
+  ? `https://${process.env.NEXT_PUBLIC_SITE_URL}`
   : "http://localhost:3000";
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "라이언킹",
-  description: "This is lion king.",
+  title: "d-lab",
+  description: "Digital Labs",
 };
 
 export default function RootLayout({
