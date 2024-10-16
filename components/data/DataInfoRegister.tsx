@@ -143,12 +143,11 @@ export default function DataInfoRegister({ serviceId }: DataInfoRegisterProps) {
               <option value="" disabled>
                 선택 안함
               </option>
-              {columnDataTypes &&
-                columnDataTypes.map((type, idx) => (
-                  <option key={`type-${idx}`} value={type}>
-                    {type}
-                  </option>
-                ))}
+              {columnDataTypes.map((type, idx) => (
+                <option key={`type-${idx}`} value={type}>
+                  {type}
+                </option>
+              ))}
             </select>
             <input
               type="text"
