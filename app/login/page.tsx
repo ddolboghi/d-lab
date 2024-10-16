@@ -8,7 +8,7 @@ export default async function Login() {
   } = await createClient().auth.getUser();
 
   if (user) {
-    redirect("/main");
+    redirect("/dashboard");
   }
 
   return (
