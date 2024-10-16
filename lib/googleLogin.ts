@@ -18,7 +18,7 @@ export const googleLogin = async () => {
     provider: "google",
     options: {
       queryParams: { access_type: "offline", prompt: "consent" },
-      redirectTo: `${getURL()}/auth/callback?next=/main`,
+      redirectTo: `${getURL()}/auth/callback?next=/dashboard`,
     },
   });
 
