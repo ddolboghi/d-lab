@@ -11,11 +11,11 @@ export async function middleware(request: NextRequest) {
   } = await createClient().auth.getUser();
   // console.log("유저 정보 middleware: ", user);
 
-  const protectedRoutes = ["/main", "/add"];
+  const protectedRoutes = ["/dashboard"];
 
   const isLoggedIn = user !== null;
 
-  if (protectedRoutes.includes(pathname)) {
+  if (protectedRoutes.some((route) => pathname.startsWith(route))) {
     if (!isLoggedIn) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
