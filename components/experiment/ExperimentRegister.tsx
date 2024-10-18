@@ -282,6 +282,7 @@ export default function ExperimentRegister({
               name="goal"
               className="border border-gray-300 rounded p-1 mx-2"
             />
+            <span>%</span>
           </section>
           <button type="submit" className="bg-green-400 text-white p-2">
             실험 시작
