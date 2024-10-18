@@ -30,7 +30,7 @@ export interface DataInfoForConenct {
   title: string;
   url: string;
   apikey: string;
-  metadatas: Metadata[];
+  metadata: Metadata[];
 }
 
 /* 실험 타입 */
