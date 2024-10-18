@@ -1,9 +1,9 @@
 "use server";
 
-import { toSet } from "@/lib/dataFilter";
-import { Metadata } from "@/utils/types";
+import { filtering, toSet } from "@/lib/dataFilter";
+import { Condition, Metadata } from "@/utils/types";
 
-export const fetchDataByMetadata = async (
+export const fetchLogDataByMetadataForFilter = async (
   url: string,
   apikey: string,
   metadata: Metadata
@@ -26,14 +26,12 @@ export const fetchDataByMetadata = async (
   }
 };
 
-export const fetchData = async (
+export const fetchFilteredLogData = async (
   url: string,
   apikey: string,
-  endTime: string
+  metadatas: Metadata[],
+  conditions: Condition[]
 ) => {
-  if (new Date() >= new Date(endTime))
-    throw new Error("Already past end time.");
-
   try {
     const response = await fetch(url, {
       method: "GET",
@@ -43,10 +41,19 @@ export const fetchData = async (
       },
     });
 
-    const data = await response.json();
-    return data;
+    const data: any[] | null = await response.json();
+    if (!data) throw new Error("Log data not exist.");
+
+    const filteredData = filtering(data, metadatas, conditions);
+    const sortedData = filteredData.sort((a, b) => {
+      return (
+        new Date(a["created_at"]).getTime() -
+        new Date(b["created_at"]).getTime()
+      );
+    });
+    return sortedData;
   } catch (e) {
-    console.error("[fetchData] Error:", e);
+    console.error("[fetchFilteredLogData] Error:", e);
     return null;
   }
 };
