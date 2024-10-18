@@ -26,21 +26,30 @@ export interface DataInfo {
   created_at: Date;
 }
 
+export interface DataInfoForConenct {
+  title: string;
+  url: string;
+  apikey: string;
+  metadatas: Metadata[];
+}
+
+/* 실험 타입 */
+
 export interface Experiment {
-  id: number;
-  service_id: number;
   title: string;
   overview: string;
-  end_time: Date;
+  end_time: string;
   experimental_data_id: number;
-  experimental_data_preprocessing_id: number;
+  experimental_data_conditions: Condition[];
   control_data_id: number;
-  control_data_preprocessing_id: number;
+  control_data_conditions: Condition[];
   goal: number;
 }
 
 export interface ExperimentForRead extends Experiment {
-  created_at: Date;
+  id: number;
+  service_id: number;
+  created_at: string;
   conclusion: string;
 }
 
@@ -51,3 +60,27 @@ export interface ExperimentForUpdate {
   goal: number;
   conclusion: string;
 }
+
+/* 필터 조건 타입 */
+
+export type Condition = {
+  columnName: string;
+  conditionType: ConditionType;
+  conditionValue: ConditionValue;
+};
+
+export type ConditionType =
+  | "includedString"
+  | "notIncludedString"
+  | "selectedStrings"
+  | "notSelectedStrings"
+  | "equalConditionValue"
+  | "rangeConditionValue"
+  | null;
+
+export type ConditionValue = string | string[] | number | RangeCondition | null;
+
+export type RangeCondition = {
+  underConditionValue: number | null;
+  overConditionValue: number | null;
+};
