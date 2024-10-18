@@ -1,13 +1,29 @@
-import { Metadata } from "@/utils/types";
+import { DataInfo, RangeCondition } from "@/utils/types";
+import MetadataFilter from "./MetadataFilter";
 
 type MetadataTableProps = {
-  dataInfoId: number;
-  metadatas: Metadata[];
+  dataInfo: DataInfo;
+  isControl?: boolean;
+  handleNumberConditions: (
+    isControl: boolean,
+    columnName: string,
+    equalConditionValue: number | null,
+    rangeCondition: RangeCondition
+  ) => void;
+  handleStringConditions: (
+    isControl: boolean,
+    columnName: string,
+    isNotCondition: boolean,
+    selectedStrings: string[],
+    includedString: string
+  ) => void;
 };
 
 export default function MetadataTable({
-  dataInfoId,
-  metadatas,
+  dataInfo,
+  isControl = false,
+  handleNumberConditions,
+  handleStringConditions,
 }: MetadataTableProps) {
   return (
     <table>
@@ -17,15 +33,26 @@ export default function MetadataTable({
           <th>설명</th>
           <th>데이터 타입</th>
           <th>예시</th>
+          <th>필터</th>
         </tr>
       </thead>
       <tbody>
-        {metadatas.map((metadata, idx) => (
-          <tr key={`${dataInfoId}-${idx}`}>
-            <td>{metadata.columnName}</td>
-            <td>{metadata.description}</td>
-            <td>{metadata.type}</td>
-            <td>{metadata.example}</td>
+        {dataInfo.metadata.map((md, idx) => (
+          <tr key={`${dataInfo.id}-${idx}`}>
+            <td>{md.columnName}</td>
+            <td>{md.description}</td>
+            <td>{md.type}</td>
+            <td>{md.example}</td>
+            <td>
+              <MetadataFilter
+                isControl={isControl}
+                url={dataInfo.url}
+                apikey={dataInfo.apikey}
+                metadata={md}
+                handleNumberConditions={handleNumberConditions}
+                handleStringConditions={handleStringConditions}
+              />
+            </td>
           </tr>
         ))}
       </tbody>
