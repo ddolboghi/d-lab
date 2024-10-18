@@ -1,29 +1,43 @@
 "use server";
 
 import { supabaseClient } from "@/lib/getSupabaseClient";
-import { Experiment, ExperimentForRead } from "@/utils/types";
+import { Condition, Experiment, ExperimentForRead } from "@/utils/types";
 import { revalidateTag } from "next/cache";
+import schedule from "node-schedule";
+
+export const startExperiment = async (
+  serviceId: string,
+  formData: FormData,
+  experimentalDataConditions: Condition[],
+  controlDataConditions: Condition[]
+) => {
+  const rawFormData: Experiment = {
+    title: formData.get("title") as string,
+    overview: formData.get("overview") as string,
+    end_time: new Date(formData.get("endTime") as string).toISOString(),
+    experimental_data_id: Number(formData.get("experimentalDataId")),
+    experimental_data_conditions: experimentalDataConditions,
+    control_data_id: Number(formData.get("controlDataId")),
+    control_data_conditions: controlDataConditions,
+    goal: Number(formData.get("goal")),
+  };
+
+  const insertResponse = await insertExperiment(serviceId, rawFormData);
+  if (!insertResponse) return false;
+
+  schedule.scheduleJob(rawFormData.end_time, function () {
+    //최신 데이터 받아서 conclusion 계산하고 update
+    console.log("Scheduler ended at endTime");
+  });
+
+  return true;
+};
 
 export const insertExperiment = async (
   serviceId: string,
-  formData: FormData
+  rawFormData: Experiment
 ) => {
   try {
-    const rawFormData = {
-      title: formData.get("title"),
-      overview: formData.get("overview"),
-      end_time: new Date(formData.get("endTime") as string),
-      experimental_data_id: Number(formData.get("experimentalDataId")),
-      experimental_data_preprocessing_id: Number(
-        formData.get("experimentalDataPreProcessingId")
-      ),
-      control_data_id: Number(formData.get("controlDataId")),
-      control_data_preprocessing_id: Number(
-        formData.get("controlDataPreProcessingId")
-      ),
-      goal: Number(formData.get("goal")),
-    };
-
     const { error } = await supabaseClient
       .from("experiment")
       .insert([{ service_id: Number(serviceId), ...rawFormData }]);
@@ -53,7 +67,7 @@ export const selectExperimentsByServiceId = async (serviceId: string) => {
 
     if (!response.ok) throw response.status;
 
-    const data: Experiment[] = await response.json();
+    const data: ExperimentForRead[] = await response.json();
     return data;
   } catch (e) {
     console.error("[selectExperimentByServiceId] Error: ", e);
