@@ -75,7 +75,7 @@ export const selectExperimentsByServiceId = async (serviceId: string) => {
   }
 };
 
-export const selectExperimentByServiceIdAndExperimentId = async (
+export const selectByServiceIdAndExperimentIdInLogData = async (
   serviceId: string,
   experimentId: string
 ) => {
@@ -91,7 +91,7 @@ export const selectExperimentByServiceIdAndExperimentId = async (
     if (!data) throw new Error("Experiment not existed.");
     return data;
   } catch (e) {
-    console.error("[selectExperimentByServiceIdAndExperimentId]", e);
+    console.error("[selectByServiceIdAndExperimentIdInLogData]", e);
     return null;
   }
 };
