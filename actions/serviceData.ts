@@ -1,7 +1,7 @@
 "use server";
 
 import { supabaseClient } from "@/lib/getSupabaseClient";
-import { DataInfo, Metadata } from "@/utils/types";
+import { DataInfo, DataInfoForConenct, Metadata } from "@/utils/types";
 import { revalidateTag } from "next/cache";
 
 export const insertDataInfo = async (
@@ -31,7 +31,7 @@ export const insertDataInfo = async (
   }
 };
 
-export const selectDataByServiceId = async (serviceId: string) => {
+export const selectDataInfoByServiceId = async (serviceId: string) => {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/data_info?service_id=eq.${serviceId}&select=id,title,url,apikey,metadata,created_at&order=created_at.asc`,
@@ -98,5 +98,23 @@ export const deleteDataInfoById = async (dataInfoId: number) => {
   } catch (e) {
     console.error("[deleteDataInfoById]", e);
     return false;
+  }
+};
+
+export const selectDataInfoById = async (dataInfoId: number) => {
+  try {
+    const { data, error } = await supabaseClient
+      .from("data_info")
+      .select("title, url, apikey, metadata")
+      .eq("id", dataInfoId)
+      .single<DataInfoForConenct>();
+
+    if (error) throw error;
+    if (!data) throw new Error("Data not existed.");
+
+    return data;
+  } catch (e) {
+    console.error("[selectDataById]", e);
+    return null;
   }
 };
