@@ -1,4 +1,4 @@
-import { fetchDataByMetadata } from "@/actions/connectData";
+import { fetchLogDataByMetadataForFilter } from "@/actions/connectData";
 import { Metadata, RangeCondition } from "@/utils/types";
 import { useEffect, useState } from "react";
 import NumberFilter from "./NumberFilter";
@@ -40,7 +40,11 @@ export default function MetadataFilter({
   useEffect(() => {
     const getFilterOption = async () => {
       if (metadata.type !== "number") {
-        const response = await fetchDataByMetadata(url, apikey, metadata);
+        const response = await fetchLogDataByMetadataForFilter(
+          url,
+          apikey,
+          metadata
+        );
         if (response) {
           setFilterOptions(response);
         }
