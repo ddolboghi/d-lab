@@ -2,6 +2,7 @@ import { selectExperimentByServiceIdAndExperimentId } from "@/actions/experiment
 import ExperimentEdit from "@/components/experiment/ExperimentEdit";
 import { ExperimentForUpdate } from "@/utils/types";
 import experimentStyle from "./experiment-style.module.css";
+import { formatDateUTC, toKst } from "@/lib/dateTranslator";
 
 export default async function page({
   params,
@@ -19,8 +20,8 @@ export default async function page({
     return <main>실험을 불러올 수 없습니다.</main>;
   }
 
-  const endTime = new Date(experiment.end_time).toLocaleString();
-  const createdAt = new Date(experiment.created_at).toLocaleString();
+  const createdAt = formatDateUTC(toKst(new Date(experiment.created_at)));
+  const endTime = formatDateUTC(new Date(experiment.end_time));
 
   const editContent: ExperimentForUpdate = {
     id: experiment.id,
@@ -35,7 +36,11 @@ export default async function page({
         <ul>
           <li>실험 시작 시간: {createdAt}</li>
           <li>
-            <ExperimentEdit serviceId={serviceId} editContent={editContent} />
+            <ExperimentEdit
+              serviceId={serviceId}
+              editContent={editContent}
+              endTime={experiment.end_time}
+            />
           </li>
         </ul>
       </nav>
