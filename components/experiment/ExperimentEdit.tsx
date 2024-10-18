@@ -11,14 +11,17 @@ import { useState } from "react";
 type ExperimentEditProps = {
   serviceId: string;
   editContent: ExperimentForUpdate;
+  endTime: string;
 };
 
 export default function ExperimentEdit({
   serviceId,
   editContent,
+  endTime,
 }: ExperimentEditProps) {
   const [showEdit, setShowEdit] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [isEnd, setIsEnd] = useState(new Date() >= new Date(endTime));
   const router = useRouter();
 
   const handleShowEdit = () => {
@@ -26,6 +29,9 @@ export default function ExperimentEdit({
   };
 
   const handleEdit = async (formData: FormData) => {
+    if (isEnd) {
+      return;
+    }
     const response = await updateExperimentById(editContent.id, formData);
     setIsError(!response);
     if (response) {
@@ -46,7 +52,11 @@ export default function ExperimentEdit({
 
   return (
     <div>
-      <button onClick={handleShowEdit} className="bg-blue-400 text-white p-2">
+      <button
+        onClick={handleShowEdit}
+        className="bg-blue-400 text-white p-2"
+        disabled={isEnd}
+      >
         편집하기
       </button>
       <button onClick={handleDelete} className="bg-red-400 text-white p-2">
