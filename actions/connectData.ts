@@ -1,36 +1,52 @@
 "use server";
 
-import schedule from "node-schedule";
+import { toSet } from "@/lib/dataFilter";
+import { Metadata } from "@/utils/types";
 
-export const connectData = async (
-  endTime: Date,
+export const fetchDataByMetadata = async (
   url: string,
-  apikey: string
+  apikey: string,
+  metadata: Metadata
 ) => {
-  const job = schedule.scheduleJob("*/3 * * * * *", async function () {
-    if (new Date() >= endTime) {
-      job.cancel();
-      return;
-    }
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: apikey,
+      },
+    });
 
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: apikey,
-        },
-      });
+    const rawData: any[] = await response.json();
+    const data = toSet(rawData.map((d) => d[metadata.columnName]));
+    return Array.from(data);
+  } catch (e) {
+    console.error("[fetchData] Error:", e);
+    return null;
+  }
+};
 
-      //db에 저장하는 server action 실행하기
-      console.log("Fetch successful:", response.status);
-    } catch (e) {
-      console.error("Fetch error:", e);
-    }
-  });
+export const fetchData = async (
+  url: string,
+  apikey: string,
+  endTime: string
+) => {
+  if (new Date() >= new Date(endTime))
+    throw new Error("Already past end time.");
 
-  schedule.scheduleJob(endTime, function () {
-    job.cancel();
-    console.log("Scheduler ended at endTime");
-  });
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: apikey,
+      },
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (e) {
+    console.error("[fetchData] Error:", e);
+    return null;
+  }
 };
