@@ -1,4 +1,4 @@
-import { selectDataByServiceId } from "@/actions/serviceData";
+import { selectDataInfoByServiceId } from "@/actions/serviceData";
 import DataInfoEdit from "@/components/data/DataInfoEdit";
 import DataInfoRegister from "@/components/data/DataInfoRegister";
 
@@ -8,7 +8,7 @@ export default async function page({
   params: { serviceId: string };
 }) {
   const serviceId = params.serviceId;
-  const registeredDatas = await selectDataByServiceId(serviceId);
+  const registeredDatas = await selectDataInfoByServiceId(serviceId);
   return (
     <main>
       <table className="border-collapse border border-black">
