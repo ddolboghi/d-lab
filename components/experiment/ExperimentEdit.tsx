@@ -11,17 +11,16 @@ import { useState } from "react";
 type ExperimentEditProps = {
   serviceId: string;
   editContent: ExperimentForUpdate;
-  endTime: string;
+  isEnd: boolean;
 };
 
 export default function ExperimentEdit({
   serviceId,
   editContent,
-  endTime,
+  isEnd,
 }: ExperimentEditProps) {
   const [showEdit, setShowEdit] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [isEnd, setIsEnd] = useState(new Date() >= new Date(endTime));
   const router = useRouter();
 
   const handleShowEdit = () => {
