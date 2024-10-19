@@ -229,7 +229,7 @@ export default function ExperimentRegister({
       setIsError(true);
     }
   };
-  console.log(experimentalDataConditions);
+
   return (
     <div>
       <button
