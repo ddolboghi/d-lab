@@ -64,15 +64,23 @@ export const selectByServiceIdAndExperimentIdInLogData = async (
   experimentId: string
 ) => {
   try {
-    const { data, error } = await supabaseClient
-      .from("experiment")
-      .select("*")
-      .eq("id", experimentId)
-      .eq("service_id", serviceId)
-      .single<ExperimentForRead>();
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/experiment?service_id=eq.${serviceId}&id=eq.${experimentId}&select=*`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+        },
+        next: { tags: ["updateExperimentById", "updateConclusion"] },
+      }
+    );
 
-    if (error) throw error;
-    if (!data) throw new Error("Experiment not existed.");
+    if (!response.ok) throw response.status;
+
+    const result = await response.json();
+
+    const data: ExperimentForRead = result[0];
     return data;
   } catch (e) {
     console.error("[selectByServiceIdAndExperimentIdInLogData]", e);
@@ -98,7 +106,7 @@ export const updateExperimentById = async (
       .eq("id", experimentId);
 
     if (error) throw error;
-
+    revalidateTag("updateExperimentById");
     return true;
   } catch (e) {
     console.error("[updateExperimentById]", e);
@@ -125,14 +133,10 @@ export const deleteExperimentById = async (experimentId: number) => {
 
 export const updateConclusion = async (
   experimentId: number,
-  actual: number | null,
+  actual: number,
   goal: number
 ) => {
-  const conclusion = !actual
-    ? ""
-    : actual >= goal
-      ? "가설은 참입니다."
-      : "가설은 거짓입니다.";
+  const conclusion = actual >= goal ? "가설은 참입니다." : "가설은 거짓입니다.";
 
   try {
     const { data, error } = await supabaseClient
@@ -140,11 +144,11 @@ export const updateConclusion = async (
       .update({ conclusion: conclusion })
       .eq("id", experimentId)
       .select("conclusion")
-      .single<string>();
+      .single<{ conclusion: string }>();
 
     if (error) throw error;
-
-    return data;
+    revalidateTag("updateConclusion");
+    return data.conclusion;
   } catch (e) {
     console.error("[updateConclusion]", e);
     return null;
@@ -157,11 +161,11 @@ export const selectConclusionById = async (experimentId: string) => {
       .from("experiment")
       .select("conclusion")
       .eq("id", experimentId)
-      .single<string>();
+      .single<{ conclusion: string }>();
 
     if (error) throw error;
 
-    return data;
+    return data.conclusion;
   } catch (e) {
     console.error("[selectConclusionById]", e);
     return null;

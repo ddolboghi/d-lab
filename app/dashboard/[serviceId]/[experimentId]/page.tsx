@@ -60,17 +60,16 @@ export default async function page({
   let actual: number | null = null;
   let conclusionContent: string | null = experiment.conclusion;
   const isEnd = new Date() >= new Date(experiment.end_time);
-
   if (isEnd) {
-    if (!conclusionContent) {
+    if (experimentalValue && controlValue) {
+      actual = (experimentalValue / controlValue) * 100;
+    }
+    if (conclusionContent && actual) {
       conclusionContent = await updateConclusion(
         experiment.id,
         actual,
         experiment.goal
       );
-    }
-    if (experimentalValue && controlValue) {
-      actual = (experimentalValue / controlValue) * 100;
     }
   }
 
@@ -141,7 +140,7 @@ export default async function page({
           <h1>결론</h1>
           <p>목표 수치: {experiment.goal}%</p>
           {actual && <p>실제 수치: {actual}%</p>}
-          <p>{conclusionContent}</p>
+          {conclusionContent && <p>{conclusionContent}</p>}
         </section>
       </div>
     </main>
