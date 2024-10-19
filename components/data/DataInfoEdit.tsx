@@ -182,8 +182,11 @@ export default function DataInfoEdit({ dataInfo }: DataInfoEditProps) {
                 <label>설명</label>
                 <input
                   type="text"
-                  className="border border-gray-300 rounded"
+                  className={`${metadata.description === "created_at" && "bg-gray-200"} border border-gray-300 rounded`}
                   defaultValue={metadata.description}
+                  readOnly={
+                    metadata.description === "created_at" ? true : false
+                  }
                   onChange={(e) =>
                     handleMetadataChange(idx, "description", e.target.value)
                   }
@@ -194,6 +197,9 @@ export default function DataInfoEdit({ dataInfo }: DataInfoEditProps) {
                 <select
                   name="type"
                   defaultValue={metadata.type}
+                  disabled={
+                    metadata.description === "created_at" ? true : false
+                  }
                   onChange={(e) =>
                     handleMetadataChange(idx, "type", e.target.value)
                   }
@@ -212,7 +218,7 @@ export default function DataInfoEdit({ dataInfo }: DataInfoEditProps) {
                 <label>예시</label>
                 <input
                   type="text"
-                  className="border border-gray-300 rounded p-1 w-1/4 h-1/4 mx-2"
+                  className="border border-gray-300 rounded"
                   defaultValue={metadata.example}
                   placeholder=""
                   onChange={(e) =>

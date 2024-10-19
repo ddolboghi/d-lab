@@ -15,7 +15,14 @@ export default function DataInfoRegister({ serviceId }: DataInfoRegisterProps) {
   const [headerPairs, setHeaderPairs] = useState<headerPair[]>([
     { id: Date.now(), key: "", value: "" },
   ]);
-  const [metadatas, setMetadatas] = useState<Metadata[]>([]);
+  const [metadatas, setMetadatas] = useState<Metadata[]>([
+    {
+      columnName: "데이터 생성 시간은 필수 값입니다.",
+      description: "created_at",
+      type: "string",
+      example: "2024-09-30 01:46:43.775468+00",
+    },
+  ]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -180,9 +187,11 @@ export default function DataInfoRegister({ serviceId }: DataInfoRegisterProps) {
                 <label>설명</label>
                 <input
                   type="text"
-                  className="border border-gray-300 rounded"
+                  className={`${metadata.description === "created_at" && "bg-gray-200"} border border-gray-300 rounded`}
                   value={metadata.description}
-                  placeholder=""
+                  readOnly={
+                    metadata.description === "created_at" ? true : false
+                  }
                   onChange={(e) =>
                     handleMetadataChange(idx, "description", e.target.value)
                   }
@@ -193,6 +202,9 @@ export default function DataInfoRegister({ serviceId }: DataInfoRegisterProps) {
                 <select
                   name="type"
                   value={metadata.type}
+                  disabled={
+                    metadata.description === "created_at" ? true : false
+                  }
                   onChange={(e) =>
                     handleMetadataChange(idx, "type", e.target.value)
                   }
@@ -221,8 +233,9 @@ export default function DataInfoRegister({ serviceId }: DataInfoRegisterProps) {
               </div>
             </div>
             <button
-              className="bg-red-500 text-white rounded p-1 w-1/4 h-1/4 ml-2"
+              className={`${metadata.description === "created_at" ? "bg-slate-400" : "bg-red-500"} text-white rounded p-1 w-1/4 h-1/4 ml-2`}
               onClick={() => deleteMetadata(idx)}
+              disabled={metadata.description === "created_at" ? true : false}
             >
               X
             </button>
