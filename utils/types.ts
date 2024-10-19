@@ -31,7 +31,7 @@ export type headerPair = { id: number; key: string; value: string };
 export interface DataInfoForConenct {
   title: string;
   url: string;
-  apikey: string;
+  headers: headerPair[];
   metadata: Metadata[];
 }
 
@@ -40,7 +40,7 @@ export interface DataInfoForConenct {
 export interface Experiment {
   title: string;
   overview: string;
-  end_time: string;
+  end_time: string | null;
   experimental_data_id: number;
   experimental_data_conditions: Condition[];
   control_data_id: number;

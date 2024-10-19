@@ -1,5 +1,6 @@
 "use server";
 
+import { getHeaders } from "@/lib/connectData";
 import { filtering, toSet } from "@/lib/dataFilter";
 import { Condition, headerPair, Metadata } from "@/utils/types";
 
@@ -8,13 +9,7 @@ export const fetchLogDataByMetadataForFilter = async (
   headerPairs: headerPair[],
   metadata: Metadata
 ) => {
-  const headers = headerPairs.reduce(
-    (acc, curr) => {
-      acc[curr.key] = curr.value;
-      return acc;
-    },
-    {} as Record<string, string>
-  );
+  const headers = getHeaders(headerPairs);
 
   try {
     const response = await fetch(url, {
@@ -36,16 +31,17 @@ export const fetchLogDataByMetadataForFilter = async (
 
 export const fetchFilteredLogData = async (
   url: string,
-  apikey: string,
+  headerPairs: headerPair[],
   metadatas: Metadata[],
   conditions: Condition[]
 ) => {
+  const headers = getHeaders(headerPairs);
   try {
     const response = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        apikey: apikey,
+        ...headers,
       },
     });
 
