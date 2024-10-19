@@ -21,10 +21,12 @@ export interface DataInfo {
   id: number;
   title: string;
   url: string;
-  apikey: string;
+  headers: headerPair[];
   metadata: Metadata[];
   created_at: Date;
 }
+
+export type headerPair = { id: number; key: string; value: string };
 
 export interface DataInfoForConenct {
   title: string;

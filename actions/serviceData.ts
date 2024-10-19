@@ -1,14 +1,19 @@
 "use server";
 
 import { supabaseClient } from "@/lib/getSupabaseClient";
-import { DataInfo, DataInfoForConenct, Metadata } from "@/utils/types";
+import {
+  DataInfo,
+  DataInfoForConenct,
+  headerPair,
+  Metadata,
+} from "@/utils/types";
 import { revalidateTag } from "next/cache";
 
 export const insertDataInfo = async (
   serviceId: string,
   title: string,
   url: string,
-  apikey: string,
+  headerPairs: headerPair[],
   metadatas: Metadata[]
 ) => {
   try {
@@ -17,7 +22,7 @@ export const insertDataInfo = async (
         service_id: Number(serviceId),
         title: title,
         url: url,
-        apikey: apikey,
+        headers: headerPairs,
         metadata: metadatas,
       },
     ]);
@@ -34,7 +39,7 @@ export const insertDataInfo = async (
 export const selectDataInfoByServiceId = async (serviceId: string) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/data_info?service_id=eq.${serviceId}&select=id,title,url,apikey,metadata,created_at&order=created_at.asc`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/data_info?service_id=eq.${serviceId}&select=id,title,url,headers,metadata,created_at&order=created_at.asc`,
       {
         method: "GET",
         headers: {
@@ -61,7 +66,7 @@ export const updateDataInfoById = async (
   dataInfoId: number,
   title: string,
   url: string,
-  apikey: string,
+  headerPairs: headerPair[],
   metadatas: Metadata[]
 ) => {
   try {
@@ -70,7 +75,7 @@ export const updateDataInfoById = async (
       .update({
         title: title,
         url: url,
-        apikey: apikey,
+        headers: headerPairs,
         metadata: metadatas,
       })
       .eq("id", dataInfoId);

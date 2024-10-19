@@ -1,26 +1,20 @@
 "use client";
 
-import {
-  deleteDataInfoById,
-  insertDataInfo,
-  updateDataInfoById,
-} from "@/actions/serviceData";
+import { deleteDataInfoById, updateDataInfoById } from "@/actions/serviceData";
 import { columnDataTypes } from "@/lib/columnDataTypes";
-import { DataInfo, Metadata } from "@/utils/types";
+import { DataInfo, headerPair, Metadata } from "@/utils/types";
 import { useState } from "react";
 
 type DataInfoEditProps = {
-  serviceId: string;
   dataInfo: DataInfo;
 };
 
-export default function DataInfoEdit({
-  serviceId,
-  dataInfo,
-}: DataInfoEditProps) {
+export default function DataInfoEdit({ dataInfo }: DataInfoEditProps) {
   const [title, setTitle] = useState(dataInfo.title);
   const [url, setUrl] = useState(dataInfo.url);
-  const [apikey, setApikey] = useState(dataInfo.apikey);
+  const [headerPairs, setHeaderPairs] = useState<headerPair[]>(
+    dataInfo.headers
+  );
   const [metadatas, setMetadatas] = useState<Metadata[]>(dataInfo.metadata);
   const [isLoading, setIsLoading] = useState({
     create: false,
@@ -78,18 +72,20 @@ export default function DataInfoEdit({
     }
   };
 
-  const handleRegister = async () => {
-    setIsLoading({ ...isLoading, create: true });
-    const response = await insertDataInfo(
-      serviceId,
-      title,
-      url,
-      apikey,
-      metadatas
-    );
+  const addPair = () => {
+    setHeaderPairs([...headerPairs, { id: Date.now(), key: "", value: "" }]);
+  };
 
-    setIsError({ ...isError, create: !response });
-    setIsLoading({ ...isLoading, create: false });
+  const removePair = (id: number) => {
+    setHeaderPairs(headerPairs.filter((headerPair) => headerPair.id !== id));
+  };
+
+  const updatePair = (id: number, field: string, value: string) => {
+    setHeaderPairs(
+      headerPairs.map((headerPair) =>
+        headerPair.id === id ? { ...headerPair, [field]: value } : headerPair
+      )
+    );
   };
 
   const handleEdit = async () => {
@@ -98,7 +94,7 @@ export default function DataInfoEdit({
       dataInfo.id,
       title,
       url,
-      apikey,
+      headerPairs,
       metadatas
     );
     setIsError({ ...isError, update: !response });
@@ -121,6 +117,7 @@ export default function DataInfoEdit({
         <input
           name="title"
           defaultValue={dataInfo.title}
+          className="border border-gray-300 rounded truncate"
           onChange={(e) => setTitle(e.target.value)}
         />
       </td>
@@ -128,60 +125,102 @@ export default function DataInfoEdit({
         <input
           name="url"
           defaultValue={dataInfo.url}
+          className="border border-gray-300 rounded truncate"
           onChange={(e) => handleUrlChange(e.target.value)}
         />
       </td>
       <td className="border border-black p-2 w-[120px] truncate">
-        <input
-          name="apikey"
-          defaultValue={dataInfo.apikey}
-          onChange={(e) => setApikey(e.target.value)}
-        />
+        {headerPairs.map((headerPair) => (
+          <div key={headerPair.id} style={{ marginBottom: "10px" }}>
+            <input
+              type="text"
+              value={headerPair.key}
+              className="border border-gray-300 rounded truncate"
+              onChange={(e) => updatePair(headerPair.id, "key", e.target.value)}
+              placeholder="Key"
+            />
+            <input
+              type="text"
+              value={headerPair.value}
+              className="border border-gray-300 rounded truncate"
+              onChange={(e) =>
+                updatePair(headerPair.id, "value", e.target.value)
+              }
+              placeholder="Value"
+            />
+            <button
+              onClick={() => removePair(headerPair.id)}
+              className="bg-red-500 text-white rounded p-1 ml-2"
+            >
+              X
+            </button>
+          </div>
+        ))}
+        <button
+          onClick={addPair}
+          className="bg-blue-500 rounded text-white p-2"
+        >
+          +
+        </button>
       </td>
       <td className="border border-black p-2 w-[600px]">
         {metadatas.map((metadata, idx) => (
-          <div key={idx} className="flex flex-row mb-2">
-            <input
-              type="text"
-              className="border border-gray-300 rounded p-1 w-1/4 mr-2"
-              defaultValue={metadata.columnName}
-              onChange={(e) =>
-                handleMetadataChange(idx, "columnName", e.target.value)
-              }
-            />
-            <input
-              type="text"
-              className="border border-gray-300 rounded p-1 w-1/4 mr-2"
-              defaultValue={metadata.description}
-              onChange={(e) =>
-                handleMetadataChange(idx, "description", e.target.value)
-              }
-            />
-            <select
-              name="type"
-              defaultValue={metadata.type}
-              onChange={(e) =>
-                handleMetadataChange(idx, "type", e.target.value)
-              }
-            >
-              <option value="" disabled>
-                선택 안함
-              </option>
-              {columnDataTypes.map((type, idx) => (
-                <option key={`type-${idx}`} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              className="border border-gray-300 rounded p-1 w-1/4 mx-2"
-              defaultValue={metadata.example}
-              placeholder=""
-              onChange={(e) =>
-                handleMetadataChange(idx, "example", e.target.value)
-              }
-            />
+          <div key={idx} className="flex flex-row items-center">
+            <div className="flex flex-col mb-2">
+              <div className="flex flex-row">
+                <label>컬럼명</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded"
+                  defaultValue={metadata.columnName}
+                  onChange={(e) =>
+                    handleMetadataChange(idx, "columnName", e.target.value)
+                  }
+                />
+              </div>
+              <div className="flex flex-row">
+                <label>설명</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded"
+                  defaultValue={metadata.description}
+                  onChange={(e) =>
+                    handleMetadataChange(idx, "description", e.target.value)
+                  }
+                />
+              </div>
+              <div className="flex flex-row">
+                <label>데이터 타입</label>
+                <select
+                  name="type"
+                  defaultValue={metadata.type}
+                  onChange={(e) =>
+                    handleMetadataChange(idx, "type", e.target.value)
+                  }
+                >
+                  <option value="" disabled>
+                    선택 안함
+                  </option>
+                  {columnDataTypes.map((type, idx) => (
+                    <option key={`type-${idx}`} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-row">
+                <label>예시</label>
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded p-1 w-1/4 h-1/4 mx-2"
+                  defaultValue={metadata.example}
+                  placeholder=""
+                  onChange={(e) =>
+                    handleMetadataChange(idx, "example", e.target.value)
+                  }
+                />
+              </div>
+            </div>
             <button
               className="bg-red-500 text-white rounded p-1 ml-2"
               onClick={() => deleteMetadata(idx)}
