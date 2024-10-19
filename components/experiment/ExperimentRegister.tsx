@@ -1,6 +1,6 @@
 "use client";
 
-import { startExperiment } from "@/actions/experiment";
+import { insertExperiment } from "@/actions/experiment";
 import {
   Condition,
   ConditionType,
@@ -165,7 +165,7 @@ export default function ExperimentRegister({
 
   const addExperimet = async (formData: FormData) => {
     if (formData.get("title") && formData.get("endTime")) {
-      const response = await startExperiment(
+      const response = await insertExperiment(
         serviceId,
         formData,
         experimentalDataConditions,

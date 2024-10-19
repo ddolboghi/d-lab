@@ -3,9 +3,8 @@
 import { supabaseClient } from "@/lib/getSupabaseClient";
 import { Condition, Experiment, ExperimentForRead } from "@/utils/types";
 import { revalidateTag } from "next/cache";
-import schedule from "node-schedule";
 
-export const startExperiment = async (
+export const insertExperiment = async (
   serviceId: string,
   formData: FormData,
   experimentalDataConditions: Condition[],
@@ -22,21 +21,6 @@ export const startExperiment = async (
     goal: Number(formData.get("goal")),
   };
 
-  const insertResponse = await insertExperiment(serviceId, rawFormData);
-  if (!insertResponse) return false;
-
-  schedule.scheduleJob(rawFormData.end_time, function () {
-    //최신 데이터 받아서 conclusion 계산하고 update
-    console.log("Scheduler ended at endTime");
-  });
-
-  return true;
-};
-
-export const insertExperiment = async (
-  serviceId: string,
-  rawFormData: Experiment
-) => {
   try {
     const { error } = await supabaseClient
       .from("experiment")
@@ -136,5 +120,50 @@ export const deleteExperimentById = async (experimentId: number) => {
   } catch (e) {
     console.error("[deleteExperimentById]", e);
     return false;
+  }
+};
+
+export const updateConclusion = async (
+  experimentId: number,
+  actual: number | null,
+  goal: number
+) => {
+  const conclusion = !actual
+    ? ""
+    : actual >= goal
+      ? "가설은 참입니다."
+      : "가설은 거짓입니다.";
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("experiment")
+      .update({ conclusion: conclusion })
+      .eq("id", experimentId)
+      .select("conclusion")
+      .single<string>();
+
+    if (error) throw error;
+
+    return data;
+  } catch (e) {
+    console.error("[updateConclusion]", e);
+    return null;
+  }
+};
+
+export const selectConclusionById = async (experimentId: string) => {
+  try {
+    const { data, error } = await supabaseClient
+      .from("experiment")
+      .select("conclusion")
+      .eq("id", experimentId)
+      .single<string>();
+
+    if (error) throw error;
+
+    return data;
+  } catch (e) {
+    console.error("[selectConclusionById]", e);
+    return null;
   }
 };
