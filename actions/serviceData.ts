@@ -110,7 +110,7 @@ export const selectDataInfoById = async (dataInfoId: number) => {
   try {
     const { data, error } = await supabaseClient
       .from("data_info")
-      .select("title, url, apikey, metadata")
+      .select("title, url, headers, metadata")
       .eq("id", dataInfoId)
       .single<DataInfoForConenct>();
 
@@ -119,7 +119,7 @@ export const selectDataInfoById = async (dataInfoId: number) => {
 
     return data;
   } catch (e) {
-    console.error("[selectDataById]", e);
+    console.error("[selectDataInfoById]", e);
     return null;
   }
 };
