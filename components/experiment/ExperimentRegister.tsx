@@ -273,15 +273,7 @@ export default function ExperimentRegister({
             <option value="">선택 안함</option>
             {serviceDatas &&
               serviceDatas.map((data) => (
-                <option
-                  key={data.id}
-                  value={data.id}
-                  disabled={
-                    controlDataInfo
-                      ? Number(controlDataInfo.id) === data.id
-                      : false
-                  }
-                >
+                <option key={data.id} value={data.id}>
                   {data.title}
                 </option>
               ))}
@@ -304,15 +296,7 @@ export default function ExperimentRegister({
             <option value="">선택 안함</option>
             {serviceDatas &&
               serviceDatas.map((data) => (
-                <option
-                  key={data.id}
-                  value={data.id}
-                  disabled={
-                    experimentalDataInfo
-                      ? Number(experimentalDataInfo.id) === data.id
-                      : false
-                  }
-                >
+                <option key={data.id} value={data.id}>
                   {data.title}
                 </option>
               ))}
