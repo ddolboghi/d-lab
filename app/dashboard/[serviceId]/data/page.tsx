@@ -16,11 +16,11 @@ export default async function page({
           <tr>
             <th className="border border-black p-2 w-[120px]">데이터 명</th>
             <th className="border border-black p-2 w-[120px]">API Endpoint</th>
-            <th className="border border-black p-2 w-[120px]">api key</th>
-            <th className="border border-black p-2 w-[120px]">
-              metadata
+            <th className="border border-black p-2 w-[120px]">headers</th>
+            <th className="border border-black p-2">
+              <h1>metadata</h1>
               <hr />
-              <ul className="flex flex-row justify-around">
+              <ul className="flex flex-col justify-around w-full">
                 <li>컬럼명</li>
                 <li>설명</li>
                 <li>데이터 타입</li>
@@ -35,11 +35,7 @@ export default async function page({
           <DataInfoRegister serviceId={serviceId} />
           {registeredDatas &&
             registeredDatas.map((data) => (
-              <DataInfoEdit
-                key={data.id}
-                serviceId={serviceId}
-                dataInfo={data}
-              />
+              <DataInfoEdit key={data.id} dataInfo={data} />
             ))}
         </tbody>
       </table>
