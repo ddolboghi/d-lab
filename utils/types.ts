@@ -50,7 +50,7 @@ export interface ExperimentForRead extends Experiment {
   id: number;
   service_id: number;
   created_at: string;
-  conclusion: string;
+  conclusion: string | null;
 }
 
 export interface ExperimentForUpdate {
@@ -58,7 +58,7 @@ export interface ExperimentForUpdate {
   title: string;
   overview: string;
   goal: number;
-  conclusion: string;
+  conclusion: string | null;
 }
 
 /* 필터 조건 타입 */
