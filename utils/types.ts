@@ -84,3 +84,13 @@ export type RangeCondition = {
   underConditionValue: number | null;
   overConditionValue: number | null;
 };
+
+export type CreatedAtCondition = {
+  under: string | null;
+  over: string | null;
+};
+
+/* signin */
+export interface Signin {
+  password: string;
+}

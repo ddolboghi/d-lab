@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 import { createClient } from "./utils/supabase/server";
+import { verifyRegisteredUser } from "./actions/signin";
 
 export async function middleware(request: NextRequest) {
   const response = await updateSession(request);
@@ -11,13 +12,20 @@ export async function middleware(request: NextRequest) {
   } = await createClient().auth.getUser();
   // console.log("유저 정보 middleware: ", user);
 
-  const protectedRoutes = ["/dashboard"];
+  const protectedRoutes = ["/dashboard", "/verify"];
 
   const isLoggedIn = user !== null;
 
   if (protectedRoutes.some((route) => pathname.startsWith(route))) {
     if (!isLoggedIn) {
       return NextResponse.redirect(new URL("/login", request.url));
+    }
+  }
+
+  if (pathname.startsWith("/dashboard")) {
+    const isRegisteredUser = await verifyRegisteredUser(user?.email);
+    if (!isRegisteredUser) {
+      return NextResponse.redirect(new URL("/verify", request.url));
     }
   }
 
