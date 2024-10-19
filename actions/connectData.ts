@@ -1,19 +1,27 @@
 "use server";
 
 import { filtering, toSet } from "@/lib/dataFilter";
-import { Condition, Metadata } from "@/utils/types";
+import { Condition, headerPair, Metadata } from "@/utils/types";
 
 export const fetchLogDataByMetadataForFilter = async (
   url: string,
-  apikey: string,
+  headerPairs: headerPair[],
   metadata: Metadata
 ) => {
+  const headers = headerPairs.reduce(
+    (acc, curr) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
   try {
     const response = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        apikey: apikey,
+        ...headers,
       },
     });
 
