@@ -1,6 +1,6 @@
 import { selectExperimentsByServiceId } from "@/actions/experiment";
 import { selectServiceById } from "@/actions/service";
-import { selectDataByServiceId } from "@/actions/serviceData";
+import { selectDataInfoByServiceId } from "@/actions/serviceData";
 import ExperimentRegister from "@/components/experiment/ExperimentRegister";
 import ServiceInfo from "@/components/service/ServiceInfo";
 import Link from "next/link";
@@ -12,7 +12,7 @@ export default async function page({
 }) {
   const serviceId = params.serviceId;
   const serviceInfo = await selectServiceById(serviceId);
-  const serviceDatas = await selectDataByServiceId(serviceId);
+  const serviceDatas = await selectDataInfoByServiceId(serviceId);
   const experiments = await selectExperimentsByServiceId(serviceId);
 
   return (

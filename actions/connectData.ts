@@ -1,36 +1,59 @@
 "use server";
 
-import schedule from "node-schedule";
+import { filtering, toSet } from "@/lib/dataFilter";
+import { Condition, Metadata } from "@/utils/types";
 
-export const connectData = async (
-  endTime: Date,
+export const fetchLogDataByMetadataForFilter = async (
   url: string,
-  apikey: string
+  apikey: string,
+  metadata: Metadata
 ) => {
-  const job = schedule.scheduleJob("*/3 * * * * *", async function () {
-    if (new Date() >= endTime) {
-      job.cancel();
-      return;
-    }
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: apikey,
+      },
+    });
 
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: apikey,
-        },
-      });
+    const rawData: any[] = await response.json();
+    const data = toSet(rawData.map((d) => d[metadata.columnName]));
+    return Array.from(data);
+  } catch (e) {
+    console.error("[fetchData] Error:", e);
+    return null;
+  }
+};
 
-      //db에 저장하는 server action 실행하기
-      console.log("Fetch successful:", response.status);
-    } catch (e) {
-      console.error("Fetch error:", e);
-    }
-  });
+export const fetchFilteredLogData = async (
+  url: string,
+  apikey: string,
+  metadatas: Metadata[],
+  conditions: Condition[]
+) => {
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: apikey,
+      },
+    });
 
-  schedule.scheduleJob(endTime, function () {
-    job.cancel();
-    console.log("Scheduler ended at endTime");
-  });
+    const data: any[] | null = await response.json();
+    if (!data) throw new Error("Log data not exist.");
+
+    const filteredData = filtering(data, metadatas, conditions);
+    const sortedData = filteredData.sort((a, b) => {
+      return (
+        new Date(a["created_at"]).getTime() -
+        new Date(b["created_at"]).getTime()
+      );
+    });
+    return sortedData;
+  } catch (e) {
+    console.error("[fetchFilteredLogData] Error:", e);
+    return null;
+  }
 };

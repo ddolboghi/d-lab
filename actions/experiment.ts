@@ -1,29 +1,27 @@
 "use server";
 
 import { supabaseClient } from "@/lib/getSupabaseClient";
-import { Experiment, ExperimentForRead } from "@/utils/types";
+import { Condition, Experiment, ExperimentForRead } from "@/utils/types";
 import { revalidateTag } from "next/cache";
 
 export const insertExperiment = async (
   serviceId: string,
-  formData: FormData
+  formData: FormData,
+  experimentalDataConditions: Condition[],
+  controlDataConditions: Condition[]
 ) => {
-  try {
-    const rawFormData = {
-      title: formData.get("title"),
-      overview: formData.get("overview"),
-      end_time: new Date(formData.get("endTime") as string),
-      experimental_data_id: Number(formData.get("experimentalDataId")),
-      experimental_data_preprocessing_id: Number(
-        formData.get("experimentalDataPreProcessingId")
-      ),
-      control_data_id: Number(formData.get("controlDataId")),
-      control_data_preprocessing_id: Number(
-        formData.get("controlDataPreProcessingId")
-      ),
-      goal: Number(formData.get("goal")),
-    };
+  const rawFormData: Experiment = {
+    title: formData.get("title") as string,
+    overview: formData.get("overview") as string,
+    end_time: new Date(formData.get("endTime") as string).toISOString(),
+    experimental_data_id: Number(formData.get("experimentalDataId")),
+    experimental_data_conditions: experimentalDataConditions,
+    control_data_id: Number(formData.get("controlDataId")),
+    control_data_conditions: controlDataConditions,
+    goal: Number(formData.get("goal")),
+  };
 
+  try {
     const { error } = await supabaseClient
       .from("experiment")
       .insert([{ service_id: Number(serviceId), ...rawFormData }]);
@@ -53,7 +51,7 @@ export const selectExperimentsByServiceId = async (serviceId: string) => {
 
     if (!response.ok) throw response.status;
 
-    const data: Experiment[] = await response.json();
+    const data: ExperimentForRead[] = await response.json();
     return data;
   } catch (e) {
     console.error("[selectExperimentByServiceId] Error: ", e);
@@ -61,7 +59,7 @@ export const selectExperimentsByServiceId = async (serviceId: string) => {
   }
 };
 
-export const selectExperimentByServiceIdAndExperimentId = async (
+export const selectByServiceIdAndExperimentIdInLogData = async (
   serviceId: string,
   experimentId: string
 ) => {
@@ -77,7 +75,7 @@ export const selectExperimentByServiceIdAndExperimentId = async (
     if (!data) throw new Error("Experiment not existed.");
     return data;
   } catch (e) {
-    console.error("[selectExperimentByServiceIdAndExperimentId]", e);
+    console.error("[selectByServiceIdAndExperimentIdInLogData]", e);
     return null;
   }
 };
@@ -122,5 +120,50 @@ export const deleteExperimentById = async (experimentId: number) => {
   } catch (e) {
     console.error("[deleteExperimentById]", e);
     return false;
+  }
+};
+
+export const updateConclusion = async (
+  experimentId: number,
+  actual: number | null,
+  goal: number
+) => {
+  const conclusion = !actual
+    ? ""
+    : actual >= goal
+      ? "가설은 참입니다."
+      : "가설은 거짓입니다.";
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("experiment")
+      .update({ conclusion: conclusion })
+      .eq("id", experimentId)
+      .select("conclusion")
+      .single<string>();
+
+    if (error) throw error;
+
+    return data;
+  } catch (e) {
+    console.error("[updateConclusion]", e);
+    return null;
+  }
+};
+
+export const selectConclusionById = async (experimentId: string) => {
+  try {
+    const { data, error } = await supabaseClient
+      .from("experiment")
+      .select("conclusion")
+      .eq("id", experimentId)
+      .single<string>();
+
+    if (error) throw error;
+
+    return data;
+  } catch (e) {
+    console.error("[selectConclusionById]", e);
+    return null;
   }
 };
