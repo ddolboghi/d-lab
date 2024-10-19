@@ -30,13 +30,15 @@ export default async function page({
   const controlDataInfo = await selectDataInfoById(experiment.control_data_id);
 
   const createdAt = formatDateUTC(toKst(new Date(experiment.created_at)));
-  const endTime = formatDateUTC(new Date(experiment.end_time));
+  const endTime = experiment.end_time
+    ? formatDateUTC(new Date(experiment.end_time))
+    : "";
 
   let experimentFilteredData: any[] | null = null;
   if (experimentDataInfo) {
     experimentFilteredData = await fetchFilteredLogData(
       experimentDataInfo.url,
-      experimentDataInfo.apikey,
+      experimentDataInfo.headers,
       experimentDataInfo.metadata,
       experiment.experimental_data_conditions
     );
@@ -46,7 +48,7 @@ export default async function page({
   if (controlDataInfo) {
     controlFilteredData = await fetchFilteredLogData(
       controlDataInfo.url,
-      controlDataInfo.apikey,
+      controlDataInfo.headers,
       controlDataInfo.metadata,
       experiment.control_data_conditions
     );
@@ -59,17 +61,19 @@ export default async function page({
 
   let actual: number | null = null;
   let conclusionContent: string | null = experiment.conclusion;
-  const isEnd = new Date() >= new Date(experiment.end_time);
-  if (isEnd) {
-    if (experimentalValue && controlValue) {
-      actual = (experimentalValue / controlValue) * 100;
-    }
-    if (conclusionContent && actual) {
-      conclusionContent = await updateConclusion(
-        experiment.id,
-        actual,
-        experiment.goal
-      );
+  if (experiment.end_time) {
+    const isEnd = new Date() >= new Date(experiment.end_time);
+    if (isEnd) {
+      if (experimentalValue && controlValue) {
+        actual = (experimentalValue / controlValue) * 100;
+      }
+      if (conclusionContent && actual) {
+        conclusionContent = await updateConclusion(
+          experiment.id,
+          actual,
+          experiment.goal
+        );
+      }
     }
   }
 

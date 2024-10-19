@@ -1,12 +1,19 @@
 import { fetchLogDataByMetadataForFilter } from "@/actions/connectData";
-import { Metadata, RangeCondition } from "@/utils/types";
+import {
+  CreatedAtCondition,
+  headerPair,
+  Metadata,
+  RangeCondition,
+} from "@/utils/types";
 import { useEffect, useState } from "react";
 import NumberFilter from "./NumberFilter";
+import BooleanFilter from "./BooleanFilter";
+import CreatedAtFilter from "./CreatedAtFilter";
 
 type MetadataFilterProps = {
   isControl: boolean;
   url: string;
-  apikey: string;
+  headerPairs: headerPair[];
   metadata: Metadata;
   handleNumberConditions: (
     isControl: boolean,
@@ -21,15 +28,27 @@ type MetadataFilterProps = {
     selectedStrings: string[],
     includedString: string
   ) => void;
+  handleBooleanConditions: (
+    isControl: boolean,
+    columnName: string,
+    booleanConditionValue: boolean | null
+  ) => void;
+  handleCreatedAtConditions: (
+    isControl: boolean,
+    columnName: string,
+    createdAtConditionValue: CreatedAtCondition
+  ) => void;
 };
 
 export default function MetadataFilter({
   isControl,
   url,
-  apikey,
+  headerPairs,
   metadata,
   handleNumberConditions,
   handleStringConditions,
+  handleBooleanConditions,
+  handleCreatedAtConditions,
 }: MetadataFilterProps) {
   const [filterOptions, setFilterOptions] = useState<Array<any>>([]);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -42,7 +61,7 @@ export default function MetadataFilter({
       if (metadata.type !== "number") {
         const response = await fetchLogDataByMetadataForFilter(
           url,
-          apikey,
+          headerPairs,
           metadata
         );
         if (response) {
@@ -111,7 +130,21 @@ export default function MetadataFilter({
       />
     );
   } else if (metadata.type === "boolean") {
-    return <div>boolean filter</div>;
+    return (
+      <BooleanFilter
+        isControl={isControl}
+        columnName={metadata.columnName}
+        handleBooleanConditions={handleBooleanConditions}
+      />
+    );
+  } else if (metadata.description === "created_at") {
+    return (
+      <CreatedAtFilter
+        isControl={isControl}
+        columnName={metadata.columnName}
+        handleCreatedAtConditions={handleCreatedAtConditions}
+      />
+    );
   }
   return (
     <div>
