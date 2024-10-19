@@ -78,11 +78,25 @@ export type ConditionType =
   | "notSelectedStrings"
   | "equalConditionValue"
   | "rangeConditionValue"
+  | "booleanConditionValue"
+  | "createdAtConditionValue"
   | null;
 
-export type ConditionValue = string | string[] | number | RangeCondition | null;
+export type ConditionValue =
+  | string
+  | string[]
+  | number
+  | RangeCondition
+  | boolean
+  | CreatedAtCondition
+  | null;
 
 export type RangeCondition = {
   underConditionValue: number | null;
   overConditionValue: number | null;
+};
+
+export type CreatedAtCondition = {
+  under: string | null;
+  over: string | null;
 };
