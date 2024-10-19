@@ -91,7 +91,7 @@ export default function ExperimentEdit({
             <label htmlFor="conclusion">결론</label>
             <textarea
               name="conclusion"
-              defaultValue={editContent.conclusion}
+              defaultValue={editContent.conclusion ?? ""}
               className="border border-gray-300 rounded p-1 w-1/4 mr-2"
             />
           </section>
