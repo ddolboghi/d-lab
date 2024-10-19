@@ -1,8 +1,13 @@
-import { selectExperimentByServiceIdAndExperimentId } from "@/actions/experiment";
+import {
+  selectByServiceIdAndExperimentIdInLogData,
+  updateConclusion,
+} from "@/actions/experiment";
 import ExperimentEdit from "@/components/experiment/ExperimentEdit";
 import { ExperimentForUpdate } from "@/utils/types";
-import experimentStyle from "./experiment-style.module.css";
 import { formatDateUTC, toKst } from "@/lib/dateTranslator";
+import { selectDataInfoById } from "@/actions/serviceData";
+import DataView from "@/components/data/DataView";
+import { fetchFilteredLogData } from "@/actions/connectData";
 
 export default async function page({
   params,
@@ -11,7 +16,7 @@ export default async function page({
 }) {
   const serviceId = params.serviceId;
   const experimentId = params.experimentId;
-  const experiment = await selectExperimentByServiceIdAndExperimentId(
+  const experiment = await selectByServiceIdAndExperimentIdInLogData(
     serviceId,
     experimentId
   );
@@ -19,16 +24,62 @@ export default async function page({
   if (!experiment) {
     return <main>실험을 불러올 수 없습니다.</main>;
   }
+  const experimentDataInfo = await selectDataInfoById(
+    experiment.experimental_data_id
+  );
+  const controlDataInfo = await selectDataInfoById(experiment.control_data_id);
 
   const createdAt = formatDateUTC(toKst(new Date(experiment.created_at)));
   const endTime = formatDateUTC(new Date(experiment.end_time));
+
+  let experimentFilteredData: any[] | null = null;
+  if (experimentDataInfo) {
+    experimentFilteredData = await fetchFilteredLogData(
+      experimentDataInfo.url,
+      experimentDataInfo.apikey,
+      experimentDataInfo.metadata,
+      experiment.experimental_data_conditions
+    );
+  }
+
+  let controlFilteredData: any[] | null = null;
+  if (controlDataInfo) {
+    controlFilteredData = await fetchFilteredLogData(
+      controlDataInfo.url,
+      controlDataInfo.apikey,
+      controlDataInfo.metadata,
+      experiment.control_data_conditions
+    );
+  }
+
+  const controlValue = controlFilteredData ? controlFilteredData.length : null;
+  const experimentalValue = experimentFilteredData
+    ? experimentFilteredData.length
+    : null;
+
+  let actual: number | null = null;
+  let conclusionContent: string | null = experiment.conclusion;
+  const isEnd = new Date() >= new Date(experiment.end_time);
+
+  if (isEnd) {
+    if (!conclusionContent) {
+      conclusionContent = await updateConclusion(
+        experiment.id,
+        actual,
+        experiment.goal
+      );
+    }
+    if (experimentalValue && controlValue) {
+      actual = (experimentalValue / controlValue) * 100;
+    }
+  }
 
   const editContent: ExperimentForUpdate = {
     id: experiment.id,
     title: experiment.title,
     overview: experiment.overview,
     goal: experiment.goal,
-    conclusion: experiment.conclusion,
+    conclusion: conclusionContent,
   };
   return (
     <main>
@@ -39,34 +90,60 @@ export default async function page({
             <ExperimentEdit
               serviceId={serviceId}
               editContent={editContent}
-              endTime={experiment.end_time}
+              isEnd={new Date() > new Date(endTime)}
             />
           </li>
         </ul>
       </nav>
       <hr />
-      <table className={experimentStyle.table}>
-        <thead>
-          <tr>
-            <th className={experimentStyle.th}>실험 제목</th>
-            <th className={experimentStyle.th}>실험 개요</th>
-            <th className={experimentStyle.th}>실험종료 시간</th>
-            <th className={experimentStyle.th}>실험군</th>
-            <th className={experimentStyle.th}>대조군</th>
-            <th className={experimentStyle.th}>목표 수치</th>
-          </tr>
-        </thead>
-        <tbody className={experimentStyle.tbody}>
-          <tr>
-            <td className={experimentStyle.td}>{experiment.title}</td>
-            <td className={experimentStyle.td}>{experiment.overview}</td>
-            <td className={experimentStyle.td}>{endTime}</td>
-            <td className={experimentStyle.td}>실험군 데이터</td>
-            <td className={experimentStyle.td}>대조군 데이터</td>
-            <td className={experimentStyle.td}>{experiment.goal}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="flex flex-col gap-2">
+        <section className="border border-black p-2">
+          <h1>실험 제목</h1>
+          <div>{experiment.title}</div>
+        </section>
+        <section className="border border-black p-2">
+          <h1>실험 개요</h1>
+          <div>{experiment.overview}</div>
+        </section>
+        <section className="border border-black p-2">
+          <h1>실험종료 시간</h1>
+          <div>{endTime}</div>
+        </section>
+        <section className="border border-black p-2">
+          <h1>실험군</h1>
+          <div>
+            {experimentDataInfo ? (
+              <DataView
+                endTime={experiment.end_time}
+                dataInfo={experimentDataInfo}
+                conditions={experiment.experimental_data_conditions}
+              />
+            ) : (
+              <p>데이터를 불러올 수 없습니다.</p>
+            )}
+          </div>
+        </section>
+        <section className="border border-black p-2">
+          <h1>대조군</h1>
+          <div>
+            {controlDataInfo ? (
+              <DataView
+                endTime={experiment.end_time}
+                dataInfo={controlDataInfo}
+                conditions={experiment.control_data_conditions}
+              />
+            ) : (
+              <p>데이터를 불러올 수 없습니다.</p>
+            )}
+          </div>
+        </section>
+        <section className="border border-black p-2">
+          <h1>결론</h1>
+          <p>목표 수치: {experiment.goal}%</p>
+          {actual && <p>실제 수치: {actual}%</p>}
+          <p>{conclusionContent}</p>
+        </section>
+      </div>
     </main>
   );
 }
