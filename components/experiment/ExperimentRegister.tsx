@@ -5,6 +5,7 @@ import {
   Condition,
   ConditionType,
   ConditionValue,
+  CreatedAtCondition,
   DataInfo,
   RangeCondition,
 } from "@/utils/types";
@@ -111,6 +112,55 @@ export default function ExperimentRegister({
     pushDataCondition(newConditionType, isControl, columnName, condition);
   };
 
+  const handleBooleanConditions = (
+    isControl: boolean,
+    columnName: string,
+    booleanConditionValue: boolean | null
+  ) => {
+    if (booleanConditionValue === null) {
+      deleteDataCondition(isControl, columnName);
+      return;
+    }
+
+    const condition: Condition = {
+      columnName: columnName,
+      conditionType: "booleanConditionValue",
+      conditionValue: booleanConditionValue,
+    };
+    pushDataCondition(
+      "booleanConditionValue",
+      isControl,
+      columnName,
+      condition
+    );
+  };
+
+  const handleCreatedAtConditions = (
+    isControl: boolean,
+    columnName: string,
+    createdAtConditionValue: CreatedAtCondition
+  ) => {
+    if (
+      createdAtConditionValue.over === null &&
+      createdAtConditionValue.under === null
+    ) {
+      deleteDataCondition(isControl, columnName);
+      return;
+    }
+
+    const condition: Condition = {
+      columnName: columnName,
+      conditionType: "createdAtConditionValue",
+      conditionValue: createdAtConditionValue,
+    };
+    pushDataCondition(
+      "createdAtConditionValue",
+      isControl,
+      columnName,
+      condition
+    );
+  };
+
   const deleteDataCondition = (isControl: boolean, columnName: string) => {
     if (isControl) {
       const newDataConditions = controlDataConditions.filter(
@@ -164,7 +214,7 @@ export default function ExperimentRegister({
   };
 
   const addExperimet = async (formData: FormData) => {
-    if (formData.get("title") && formData.get("endTime")) {
+    if (formData.get("title")) {
       const response = await insertExperiment(
         serviceId,
         formData,
@@ -179,7 +229,7 @@ export default function ExperimentRegister({
       setIsError(true);
     }
   };
-
+  console.log(experimentalDataConditions);
   return (
     <div>
       <button
@@ -211,7 +261,6 @@ export default function ExperimentRegister({
             <input
               type="datetime-local"
               name="endTime"
-              required
               className="border border-gray-300 rounded p-1 mx-2"
             />
           </section>
@@ -242,6 +291,8 @@ export default function ExperimentRegister({
               dataInfo={experimentalDataInfo}
               handleNumberConditions={handleNumberConditions}
               handleStringConditions={handleStringConditions}
+              handleBooleanConditions={handleBooleanConditions}
+              handleCreatedAtConditions={handleCreatedAtConditions}
             />
           )}
           <label htmlFor="controlDataId">대조군</label>
@@ -272,6 +323,8 @@ export default function ExperimentRegister({
               isControl={true}
               handleNumberConditions={handleNumberConditions}
               handleStringConditions={handleStringConditions}
+              handleBooleanConditions={handleBooleanConditions}
+              handleCreatedAtConditions={handleCreatedAtConditions}
             />
           )}
           <section>
