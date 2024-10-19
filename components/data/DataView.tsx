@@ -5,7 +5,7 @@ import { Condition, DataInfoForConenct } from "@/utils/types";
 import { useEffect, useState } from "react";
 
 type DataViewProps = {
-  endTime: string;
+  endTime: string | null;
   dataInfo: DataInfoForConenct;
   conditions: Condition[];
 };
@@ -16,98 +16,101 @@ export default function DataView({
   conditions,
 }: DataViewProps) {
   const [data, setData] = useState<any[]>([]);
-  const [dataKeys, setDataKeys] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rawfetchCycle, setRawFetchCycle] = useState<number>(10);
+  const [fetchCycle, setFetchCycle] = useState<number>(10);
 
   useEffect(() => {
     const getFilteredData = async () => {
       setLoading(true);
       const filteredData = await fetchFilteredLogData(
         dataInfo.url,
-        dataInfo.apikey,
+        dataInfo.headers,
         dataInfo.metadata,
         conditions
       );
-      if (!filteredData) {
-        setError("데이터를 불러오는데 실패했습니다.");
-      }
 
       if (filteredData) {
         setError(null);
-        setDataKeys(Object.keys(filteredData[0]));
-        const lastCreatedAt =
-          data && data.length > 0
-            ? new Date(data[data.length - 1]["created_at"])
-            : null;
-        if (lastCreatedAt) {
-          const overLastCreatedAtData = filteredData.filter(
-            (d) => new Date(d["created_at"]) > lastCreatedAt
-          );
-          if (overLastCreatedAtData.length > 0) {
-            setData([...data, ...overLastCreatedAtData]);
-          }
-        } else {
-          setData(filteredData);
-        }
+        setData(filteredData);
+      } else {
+        setError("데이터를 불러오는데 실패했습니다.");
       }
       setLoading(false);
     };
 
-    const endDateTime = new Date(endTime);
-    getFilteredData();
-    const intervalId = setInterval(() => {
-      const currentNow = new Date();
-      if (currentNow < endDateTime) {
-        getFilteredData();
-      } else {
-        clearInterval(intervalId);
-      }
-    }, 10000);
-    return () => clearInterval(intervalId);
-  }, []);
+    if (fetchCycle >= 5) {
+      const intervalId = setInterval(() => {
+        const currentNow = new Date();
+        if (endTime) {
+          const endDateTime = new Date(endTime);
+          if (currentNow < endDateTime) {
+            getFilteredData();
+          } else {
+            clearInterval(intervalId);
+          }
+        } else {
+          getFilteredData();
+        }
+      }, fetchCycle * 1000);
+      return () => clearInterval(intervalId);
+    }
+  }, [fetchCycle]);
+
+  const handleRawFetchCycle = (value: string) => {
+    if (!isNaN(Number(value)) && Number.isInteger(Number(value))) {
+      setRawFetchCycle(Number(value));
+      setError(null);
+    } else {
+      setError("잘못된 값입니다. 최소 5초 주기로 데이터를 불러올 수 있습니다.");
+    }
+  };
+
+  const handleCycleBtn = () => {
+    setFetchCycle(rawfetchCycle);
+  };
 
   return (
-    <div className="flex">
-      <table>
+    <div className="flex flex-col">
+      <div>
+        <label>새로고침 주기(초)</label>
+        <input
+          type="text"
+          value={rawfetchCycle}
+          className="border border-black rounded px-1"
+          onChange={(e) => handleRawFetchCycle(e.target.value)}
+        />
+        <button
+          onClick={handleCycleBtn}
+          className="rounded bg-blue-400 text-white px-1"
+        >
+          적용
+        </button>
+      </div>
+      {loading && <span>로딩 중...</span>}
+      {error && <p className="text-red-400">{error}</p>}
+      <table className="text-center">
         <thead>
           <tr>
-            {dataKeys.map((dataKey, idx) => (
-              <th key={`data-key-${idx}`} className="border border-black p-2">
-                {dataKey}
-              </th>
-            ))}
+            <th className="border border-black p-2 w-1/4">필터링 조건</th>
+            <th className="border border-black p-2 w-1/4">집계</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((row, rowIndex) => (
-            <tr key={`row-${rowIndex}`}>
-              {dataKeys.map((dataKey, colIndex) => (
-                <td
-                  key={`cell-${rowIndex}-${colIndex}`}
-                  className="border border-black p-2"
-                >
-                  {JSON.stringify(row[dataKey])}
-                </td>
+          <tr>
+            <td className="border border-black p-2 w-1/4">
+              {conditions.map((condition, idx) => (
+                <div key={`condition-${idx}`} className="flex flex-row">
+                  <p>{condition.columnName}</p>
+                  <p>{JSON.stringify(condition.conditionValue)}</p>
+                </div>
               ))}
-            </tr>
-          ))}
-          {loading && (
-            <tr>
-              <td>로딩 중...</td>
-            </tr>
-          )}
-          {error && (
-            <tr>
-              <td className="text-red-400">{error}</td>
-            </tr>
-          )}
+            </td>
+            <td className="border border-black p-2 w-1/4">{data.length}</td>
+          </tr>
         </tbody>
       </table>
-      <div className="border border-black p-2">
-        <h1>집계</h1>
-        <p>{data.length}</p>
-      </div>
     </div>
   );
 }

@@ -1,4 +1,9 @@
-import { Condition, Metadata, RangeCondition } from "@/utils/types";
+import {
+  Condition,
+  CreatedAtCondition,
+  Metadata,
+  RangeCondition,
+} from "@/utils/types";
 
 export const toSet = (array: any[]): Set<string> | Set<boolean> | Set<any> => {
   if (array.length > 0) {
@@ -23,6 +28,8 @@ export const filtering = (
   for (const condition of conditions) {
     data = stringFilter(data, condition);
     data = numberFilter(data, condition);
+    data = booleanFilter(data, condition);
+    data = createdAtFilter(data, condition);
   }
   return data;
 };
@@ -91,11 +98,26 @@ const numberFilter = (data: any[], condition: Condition) => {
       if (
         rangeConditionValue.underConditionValue !== null &&
         rangeConditionValue.overConditionValue !== null
-      )
+      ) {
         return (
           rangeConditionValue.underConditionValue <= d[condition.columnName] &&
           d[condition.columnName] <= rangeConditionValue.overConditionValue
         );
+      } else if (
+        rangeConditionValue.underConditionValue !== null &&
+        rangeConditionValue.overConditionValue === null
+      ) {
+        return (
+          rangeConditionValue.underConditionValue <= d[condition.columnName]
+        );
+      } else if (
+        rangeConditionValue.underConditionValue === null &&
+        rangeConditionValue.overConditionValue !== null
+      ) {
+        return (
+          d[condition.columnName] <= rangeConditionValue.overConditionValue
+        );
+      }
     }
     return true;
   });
@@ -103,4 +125,53 @@ const numberFilter = (data: any[], condition: Condition) => {
   return filteredData;
 };
 
-export const jsonParser = (data: any) => {};
+const booleanFilter = (data: any[], condition: Condition) => {
+  const filteredData = data.filter((d) => {
+    if (
+      condition.conditionType === "booleanConditionValue" &&
+      condition.conditionValue !== null
+    ) {
+      return d[condition.columnName] === condition.conditionValue;
+    }
+    return true;
+  });
+  return filteredData;
+};
+
+const createdAtFilter = (data: any[], condition: Condition) => {
+  const filteredData = data.filter((d) => {
+    if (condition.conditionType === "createdAtConditionValue") {
+      const createdAtConditionValue =
+        condition.conditionValue as CreatedAtCondition;
+      if (
+        createdAtConditionValue.over !== null &&
+        createdAtConditionValue.under !== null
+      ) {
+        return (
+          new Date(createdAtConditionValue.over) <=
+            new Date(d[condition.columnName]) &&
+          new Date(d[condition.columnName]) <=
+            new Date(createdAtConditionValue.under)
+        );
+      } else if (
+        createdAtConditionValue.over !== null &&
+        createdAtConditionValue.under === null
+      ) {
+        return (
+          new Date(createdAtConditionValue.over) <=
+          new Date(d[condition.columnName])
+        );
+      } else if (
+        createdAtConditionValue.over === null &&
+        createdAtConditionValue.under !== null
+      ) {
+        return (
+          new Date(d[condition.columnName]) <=
+          new Date(createdAtConditionValue.under)
+        );
+      }
+    }
+    return true;
+  });
+  return filteredData;
+};

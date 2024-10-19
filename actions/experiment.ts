@@ -10,10 +10,13 @@ export const insertExperiment = async (
   experimentalDataConditions: Condition[],
   controlDataConditions: Condition[]
 ) => {
+  let endTime = formData.get("endTime")
+    ? new Date(formData.get("endTime") as string).toISOString()
+    : null;
   const rawFormData: Experiment = {
     title: formData.get("title") as string,
     overview: formData.get("overview") as string,
-    end_time: new Date(formData.get("endTime") as string).toISOString(),
+    end_time: endTime,
     experimental_data_id: Number(formData.get("experimentalDataId")),
     experimental_data_conditions: experimentalDataConditions,
     control_data_id: Number(formData.get("controlDataId")),
