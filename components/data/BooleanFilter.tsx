@@ -1,42 +1,53 @@
 "use client";
 
+import { BooleanCondition, Condition } from "@/utils/types";
 import { useState } from "react";
 
 type BooleanFilterProps = {
   isControl: boolean;
   columnName: string;
-  handleBooleanConditions: (
-    isControl: boolean,
-    columnName: string,
-    booleanConditionValue: boolean | null
-  ) => void;
+  handleCondition: (isControl: boolean, condition: Condition) => void;
 };
 
 export default function BooleanFilter({
   isControl,
   columnName,
-  handleBooleanConditions,
+  handleCondition,
 }: BooleanFilterProps) {
-  const [value, setValue] = useState("");
+  const [booleanCondition, setBooleanCondition] = useState<BooleanCondition>({
+    columnName: columnName,
+    conditionType: "booleanConditionValue",
+    conditionValue: null,
+  });
 
   const handleSelectValue = (value: string) => {
+    const newBooleanCondition = {
+      ...booleanCondition,
+    };
     if (value === "") {
-      setValue("");
-      handleBooleanConditions(isControl, columnName, null);
+      newBooleanCondition.conditionValue = null;
+      setBooleanCondition(newBooleanCondition);
     } else if (value === "true") {
-      setValue("true");
-      handleBooleanConditions(isControl, columnName, true);
+      newBooleanCondition.conditionValue = true;
+      setBooleanCondition(newBooleanCondition);
     } else if (value === "false") {
-      setValue("false");
-      handleBooleanConditions(isControl, columnName, false);
+      newBooleanCondition.conditionValue = false;
+      setBooleanCondition(newBooleanCondition);
     }
+    handleCondition(isControl, booleanCondition);
   };
 
   return (
     <div>
       <select
         name="type"
-        value={value}
+        value={
+          booleanCondition.conditionValue === null
+            ? ""
+            : booleanCondition.conditionValue
+              ? "true"
+              : "false"
+        }
         onChange={(e) => handleSelectValue(e.target.value)}
       >
         <option value="">선택 안함</option>

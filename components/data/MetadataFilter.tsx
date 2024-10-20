@@ -1,9 +1,10 @@
 import { fetchLogDataByMetadataForFilter } from "@/actions/connectData";
 import {
-  CreatedAtCondition,
+  Condition,
   headerPair,
   Metadata,
-  RangeCondition,
+  StringArrayCondition,
+  StringIncludedCondition,
 } from "@/utils/types";
 import { useEffect, useState } from "react";
 import NumberFilter from "./NumberFilter";
@@ -15,29 +16,7 @@ type MetadataFilterProps = {
   url: string;
   headerPairs: headerPair[];
   metadata: Metadata;
-  handleNumberConditions: (
-    isControl: boolean,
-    columnName: string,
-    equalConditionValue: number | null,
-    rangeCondition: RangeCondition
-  ) => void;
-  handleStringConditions: (
-    isControl: boolean,
-    columnName: string,
-    isNotCondition: boolean,
-    selectedStrings: string[],
-    includedString: string
-  ) => void;
-  handleBooleanConditions: (
-    isControl: boolean,
-    columnName: string,
-    booleanConditionValue: boolean | null
-  ) => void;
-  handleCreatedAtConditions: (
-    isControl: boolean,
-    columnName: string,
-    createdAtConditionValue: CreatedAtCondition
-  ) => void;
+  handleCondition: (isControl: boolean, condition: Condition) => void;
 };
 
 export default function MetadataFilter({
@@ -45,20 +24,27 @@ export default function MetadataFilter({
   url,
   headerPairs,
   metadata,
-  handleNumberConditions,
-  handleStringConditions,
-  handleBooleanConditions,
-  handleCreatedAtConditions,
+  handleCondition,
 }: MetadataFilterProps) {
   const [filterOptions, setFilterOptions] = useState<Array<any>>([]);
-  const [selectedValues, setSelectedValues] = useState<string[]>([]);
-  const [includedString, setIncludedString] = useState<string>("");
+  const [selectedStrings, setSelectedStrings] = useState<string[]>([]);
   const [isNotCondition, setIsNotCondition] = useState(false);
+  const [includedCondition, setIncludedCondition] =
+    useState<StringIncludedCondition>({
+      columnName: metadata.columnName,
+      conditionType: isNotCondition ? "notIncludedString" : "includedString",
+      conditionValue: null,
+    });
+  const [arrayCondition, setArrayCondition] = useState<StringArrayCondition>({
+    columnName: metadata.columnName,
+    conditionType: isNotCondition ? "notSelectedStrings" : "selectedStrings",
+    conditionValue: null,
+  });
   const [showOptions, setShowOptions] = useState(false);
 
   useEffect(() => {
     const getFilterOption = async () => {
-      if (metadata.type !== "number") {
+      if (metadata.type === "string") {
         const response = await fetchLogDataByMetadataForFilter(
           url,
           headerPairs,
@@ -69,55 +55,81 @@ export default function MetadataFilter({
         }
       }
     };
-    if (showOptions) {
-      getFilterOption();
-    }
-  }, [showOptions]);
+    getFilterOption();
+  }, []);
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    let newSelectedValues = [...selectedValues, value];
-    if (selectedValues.includes(value)) {
-      newSelectedValues = selectedValues.filter((v) => v !== value);
+    let newSelectedStrings: string[] | null = [...selectedStrings, value];
+    if (selectedStrings.includes(value)) {
+      newSelectedStrings = selectedStrings.filter((v) => v !== value);
     }
-    setSelectedValues(newSelectedValues);
-    handleStringConditions(
-      isControl,
-      metadata.columnName,
-      isNotCondition,
-      newSelectedValues,
-      includedString
-    );
+    if (newSelectedStrings.length < 1) {
+      newSelectedStrings = null;
+    }
+    setSelectedStrings(newSelectedStrings === null ? [] : newSelectedStrings);
+    const newCondition: StringArrayCondition = {
+      ...arrayCondition,
+      conditionType: isNotCondition ? "notSelectedStrings" : "selectedStrings",
+      conditionValue: newSelectedStrings,
+    };
+    setArrayCondition(newCondition);
+    handleCondition(isControl, newCondition);
   };
 
   const handleIncludedString = (value: string) => {
-    setIncludedString(value);
-    handleStringConditions(
-      isControl,
-      metadata.columnName,
-      isNotCondition,
-      selectedValues,
-      value
-    );
+    let newIncludedString: string | null = value === "" ? null : value;
+    const newCondition: StringIncludedCondition = {
+      ...includedCondition,
+      conditionType: isNotCondition ? "notIncludedString" : "includedString",
+      conditionValue: newIncludedString,
+    };
+    setIncludedCondition(newCondition);
+    handleCondition(isControl, newCondition);
   };
 
   const handleIsNotCondition = () => {
     setIsNotCondition(!isNotCondition);
-    handleStringConditions(
-      isControl,
-      metadata.columnName,
-      !isNotCondition,
-      selectedValues,
-      includedString
-    );
+    if (includedCondition.conditionValue !== null) {
+      const newIncludedCondition = {
+        ...includedCondition,
+        conditionType: !isNotCondition
+          ? ("notIncludedString" as "notIncludedString")
+          : ("includedString" as "includedString"),
+      };
+      setIncludedCondition(newIncludedCondition);
+      handleCondition(isControl, newIncludedCondition);
+    } else if (arrayCondition.conditionValue !== null) {
+      const newArrayCondition = {
+        ...arrayCondition,
+        conditionType: !isNotCondition
+          ? ("notSelectedStrings" as "notSelectedStrings")
+          : ("selectedStrings" as "selectedStrings"),
+      };
+      setArrayCondition(newArrayCondition);
+      handleCondition(isControl, newArrayCondition);
+    }
   };
 
   const handleShowOptions = () => {
     setShowOptions(!showOptions);
     if (showOptions) {
-      setSelectedValues([]);
+      const initIncludedCondition = {
+        columnName: metadata.columnName,
+        conditionType: "includedString" as "includedString",
+        conditionValue: null,
+      };
+      setIncludedCondition(initIncludedCondition);
+      handleCondition(isControl, initIncludedCondition);
     } else {
-      setIncludedString("");
+      setSelectedStrings([]);
+      const initArrayCondition = {
+        columnName: metadata.columnName,
+        conditionType: "selectedStrings" as "selectedStrings",
+        conditionValue: null,
+      };
+      setArrayCondition(initArrayCondition);
+      handleCondition(isControl, initArrayCondition);
     }
   };
 
@@ -126,7 +138,7 @@ export default function MetadataFilter({
       <NumberFilter
         isControl={isControl}
         columnName={metadata.columnName}
-        handleNumberConditions={handleNumberConditions}
+        handleCondition={handleCondition}
       />
     );
   } else if (metadata.type === "boolean") {
@@ -134,7 +146,7 @@ export default function MetadataFilter({
       <BooleanFilter
         isControl={isControl}
         columnName={metadata.columnName}
-        handleBooleanConditions={handleBooleanConditions}
+        handleCondition={handleCondition}
       />
     );
   } else if (metadata.description === "created_at") {
@@ -142,7 +154,7 @@ export default function MetadataFilter({
       <CreatedAtFilter
         isControl={isControl}
         columnName={metadata.columnName}
-        handleCreatedAtConditions={handleCreatedAtConditions}
+        handleCondition={handleCondition}
       />
     );
   }
@@ -180,7 +192,7 @@ export default function MetadataFilter({
                 <input
                   type="checkbox"
                   value={filterOption}
-                  checked={selectedValues.includes(filterOption)}
+                  checked={selectedStrings.includes(filterOption)}
                   onChange={handleCheckboxChange}
                 />
                 {filterOption}
@@ -191,7 +203,11 @@ export default function MetadataFilter({
       ) : (
         <input
           type="text"
-          value={includedString}
+          value={
+            includedCondition.conditionValue
+              ? includedCondition.conditionValue
+              : ""
+          }
           className="border border-gray-300 rounded p-1 mx-2"
           onChange={(e) => handleIncludedString(e.target.value)}
         />

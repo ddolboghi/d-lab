@@ -1,28 +1,33 @@
-import { RangeCondition } from "@/utils/types";
+import {
+  Condition,
+  NumberEqualCondition,
+  NumberRangeCondition,
+} from "@/utils/types";
 import { useState } from "react";
 
 type NumberFilterProps = {
   isControl: boolean;
   columnName: string;
-  handleNumberConditions: (
-    isControl: boolean,
-    columnName: string,
-    equalConditionValue: number | null,
-    rangeCondition: RangeCondition
-  ) => void;
+  handleCondition: (isControl: boolean, condition: Condition) => void;
 };
 
 export default function NumberFilter({
   isControl,
   columnName,
-  handleNumberConditions,
+  handleCondition,
 }: NumberFilterProps) {
-  const [equalConditionValue, setEqualConditionValue] = useState<number | null>(
-    null
-  );
-  const [rangeCondition, setRangeCondition] = useState<RangeCondition>({
-    underConditionValue: null,
-    overConditionValue: null,
+  const [equalCondition, setEqualCondition] = useState<NumberEqualCondition>({
+    columnName: columnName,
+    conditionType: "equalConditionValue",
+    conditionValue: null,
+  });
+  const [rangeCondition, setRangeCondition] = useState<NumberRangeCondition>({
+    columnName: columnName,
+    conditionType: "rangeConditionValue",
+    conditionValue: {
+      under: null,
+      over: null,
+    },
   });
   const [showEqualCondition, setShowEqualCondition] = useState(false);
   const [isFloat, setIsFloat] = useState(false);
@@ -36,14 +41,13 @@ export default function NumberFilter({
         return;
       }
     }
-    setEqualConditionValue(newEqualConditionValue);
+    const newEqualCondition = {
+      ...equalCondition,
+      conditionValue: newEqualConditionValue,
+    };
+    setEqualCondition(newEqualCondition);
     setIsFloat(false);
-    handleNumberConditions(
-      isControl,
-      columnName,
-      newEqualConditionValue,
-      rangeCondition
-    );
+    handleCondition(isControl, newEqualCondition);
   };
 
   const handleUnderConditionValue = (value: string) => {
@@ -51,18 +55,17 @@ export default function NumberFilter({
       setIsFloat(true);
       return;
     }
-    const newRangeCondition = {
+
+    const newRangeCondition: NumberRangeCondition = {
       ...rangeCondition,
-      underConditionValue: value ? Number(value) : null,
+      conditionValue: {
+        ...rangeCondition.conditionValue,
+        under: value ? Number(value) : null,
+      },
     };
     setRangeCondition(newRangeCondition);
     setIsFloat(false);
-    handleNumberConditions(
-      isControl,
-      columnName,
-      equalConditionValue,
-      newRangeCondition
-    );
+    handleCondition(isControl, newRangeCondition);
   };
 
   const handleOverConditionValue = (value: string) => {
@@ -70,29 +73,34 @@ export default function NumberFilter({
       setIsFloat(true);
       return;
     }
-    const newRangeCondition = {
+    const newRangeCondition: NumberRangeCondition = {
       ...rangeCondition,
-      overConditionValue: value ? Number(value) : null,
+      conditionValue: {
+        ...rangeCondition.conditionValue,
+        over: value ? Number(value) : null,
+      },
     };
     setRangeCondition(newRangeCondition);
     setIsFloat(false);
-    handleNumberConditions(
-      isControl,
-      columnName,
-      equalConditionValue,
-      newRangeCondition
-    );
+    handleCondition(isControl, newRangeCondition);
   };
 
   const handleShowEqualCondition = () => {
     setShowEqualCondition(!showEqualCondition);
     if (showEqualCondition) {
-      setEqualConditionValue(null);
+      const newEqualCondition = { ...equalCondition, conditionValue: null };
+      setEqualCondition(newEqualCondition);
+      handleCondition(isControl, newEqualCondition);
     } else {
-      setRangeCondition({
-        underConditionValue: null,
-        overConditionValue: null,
-      });
+      const newRangeCondition = {
+        ...rangeCondition,
+        conditionValue: {
+          under: null,
+          over: null,
+        },
+      };
+      setRangeCondition(newRangeCondition);
+      handleCondition(isControl, newRangeCondition);
     }
   };
 
@@ -121,7 +129,11 @@ export default function NumberFilter({
           <input
             type="number"
             pattern="\d*"
-            value={equalConditionValue === null ? "" : equalConditionValue}
+            value={
+              equalCondition.conditionValue === null
+                ? ""
+                : equalCondition.conditionValue
+            }
             onChange={(e) => handleEqualConditionValue(e.target.value)}
             className="border border-gray-300 rounded p-1 mx-2"
           />
@@ -133,9 +145,9 @@ export default function NumberFilter({
             type="number"
             pattern="\d*"
             value={
-              rangeCondition.underConditionValue === null
+              rangeCondition.conditionValue.under === null
                 ? ""
-                : rangeCondition.underConditionValue
+                : rangeCondition.conditionValue.under
             }
             onChange={(e) => handleUnderConditionValue(e.target.value)}
             className="border border-gray-300 rounded p-1 mx-2"
@@ -145,9 +157,9 @@ export default function NumberFilter({
             type="number"
             pattern="\d*"
             value={
-              rangeCondition.overConditionValue === null
+              rangeCondition.conditionValue.over === null
                 ? ""
-                : rangeCondition.overConditionValue
+                : rangeCondition.conditionValue.over
             }
             onChange={(e) => handleOverConditionValue(e.target.value)}
             className="border border-gray-300 rounded p-1 mx-2"

@@ -2,12 +2,14 @@
 
 import { insertExperiment } from "@/actions/experiment";
 import {
+  BooleanCondition,
   Condition,
-  ConditionType,
-  ConditionValue,
   CreatedAtCondition,
   DataInfo,
-  RangeCondition,
+  NumberEqualCondition,
+  NumberRangeCondition,
+  StringArrayCondition,
+  StringIncludedCondition,
 } from "@/utils/types";
 import { useState } from "react";
 import MetadataTable from "../data/MetadataTable";
@@ -46,119 +48,95 @@ export default function ExperimentRegister({
     }
   };
 
-  const handleNumberConditions = (
-    isControl: boolean,
-    columnName: string,
-    equalConditionValue: number | null,
-    rangeCondition: RangeCondition
-  ) => {
+  const handleCondition = (isControl: boolean, condition: Condition) => {
     if (
-      equalConditionValue === null &&
-      rangeCondition.overConditionValue === null &&
-      rangeCondition.underConditionValue === null
+      [
+        "includedString",
+        "notIncludedString",
+        "selectedStrings",
+        "notSelectedStrings",
+      ].includes(condition.conditionType)
     ) {
-      deleteDataCondition(isControl, columnName);
-      return;
-    }
-
-    let newConditionType: ConditionType = null;
-    let newConditionValue: ConditionValue = null;
-    if (equalConditionValue) {
-      newConditionType = "equalConditionValue";
-      newConditionValue = equalConditionValue;
+      handleStringCondition(
+        isControl,
+        condition as StringIncludedCondition | StringArrayCondition
+      );
     } else if (
-      rangeCondition.overConditionValue !== null ||
-      rangeCondition.underConditionValue !== null
+      ["equalConditionValue", "rangeConditionValue"].includes(
+        condition.conditionType
+      )
     ) {
-      newConditionType = "rangeConditionValue";
-      newConditionValue = rangeCondition;
+      handleNumberCondition(
+        isControl,
+        condition as NumberEqualCondition | NumberRangeCondition
+      );
+    } else if ("booleanConditionValue" === condition.conditionType) {
+      handleBooleanCondition(isControl, condition);
+    } else if ("createdAtConditionValue" === condition.conditionType) {
+      handleCreatedAtCondition(isControl, condition);
+    } else {
+      throw new Error("Not existed Condition.");
     }
-    const condition: Condition = {
-      columnName: columnName,
-      conditionType: newConditionType,
-      conditionValue: newConditionValue,
-    };
-    pushDataCondition(newConditionType, isControl, columnName, condition);
   };
 
-  const handleStringConditions = (
+  const handleStringCondition = (
     isControl: boolean,
-    columnName: string,
-    isNotCondition: boolean,
-    selectedStrings: string[],
-    includedString: string
+    stringCondition: StringIncludedCondition | StringArrayCondition
   ) => {
-    if (selectedStrings.length < 1 && includedString.length < 1) {
+    const columnName = stringCondition.columnName;
+    // 모든 문자열 조건 값은 null이 될 수 있음
+    if (stringCondition.conditionValue === null) {
       deleteDataCondition(isControl, columnName);
       return;
     }
-
-    let newConditionType: ConditionType = isNotCondition
-      ? "notSelectedStrings"
-      : "selectedStrings";
-    let newConditionValue: ConditionValue = selectedStrings;
-    if (includedString !== "") {
-      newConditionType = isNotCondition
-        ? "notIncludedString"
-        : "includedString";
-      newConditionValue = includedString;
-    }
-
-    const condition: Condition = {
-      columnName: columnName,
-      conditionType: newConditionType,
-      conditionValue: newConditionValue,
-    };
-    pushDataCondition(newConditionType, isControl, columnName, condition);
+    pushDataCondition(isControl, stringCondition);
   };
 
-  const handleBooleanConditions = (
+  const handleNumberCondition = (
     isControl: boolean,
-    columnName: string,
-    booleanConditionValue: boolean | null
+    numberCondition: NumberEqualCondition | NumberRangeCondition
   ) => {
-    if (booleanConditionValue === null) {
-      deleteDataCondition(isControl, columnName);
+    const columnName = numberCondition.columnName;
+    if (numberCondition.conditionType === "equalConditionValue") {
+      if (numberCondition.conditionValue === null) {
+        deleteDataCondition(isControl, columnName);
+        return;
+      }
+    } else if (numberCondition.conditionType === "rangeConditionValue") {
+      if (
+        numberCondition.conditionValue.over === null &&
+        numberCondition.conditionValue.under === null
+      ) {
+        deleteDataCondition(isControl, columnName);
+        return;
+      }
+    }
+    pushDataCondition(isControl, numberCondition);
+  };
+
+  const handleBooleanCondition = (
+    isControl: boolean,
+    booleanCondition: BooleanCondition
+  ) => {
+    if (booleanCondition.conditionValue === null) {
+      deleteDataCondition(isControl, booleanCondition.columnName);
       return;
     }
-
-    const condition: Condition = {
-      columnName: columnName,
-      conditionType: "booleanConditionValue",
-      conditionValue: booleanConditionValue,
-    };
-    pushDataCondition(
-      "booleanConditionValue",
-      isControl,
-      columnName,
-      condition
-    );
+    pushDataCondition(isControl, booleanCondition);
   };
 
-  const handleCreatedAtConditions = (
+  const handleCreatedAtCondition = (
     isControl: boolean,
-    columnName: string,
     createdAtConditionValue: CreatedAtCondition
   ) => {
     if (
-      createdAtConditionValue.over === null &&
-      createdAtConditionValue.under === null
+      createdAtConditionValue.conditionValue.over === null &&
+      createdAtConditionValue.conditionValue.under === null
     ) {
-      deleteDataCondition(isControl, columnName);
+      deleteDataCondition(isControl, createdAtConditionValue.columnName);
       return;
     }
-
-    const condition: Condition = {
-      columnName: columnName,
-      conditionType: "createdAtConditionValue",
-      conditionValue: createdAtConditionValue,
-    };
-    pushDataCondition(
-      "createdAtConditionValue",
-      isControl,
-      columnName,
-      condition
-    );
+    pushDataCondition(isControl, createdAtConditionValue);
   };
 
   const deleteDataCondition = (isControl: boolean, columnName: string) => {
@@ -175,40 +153,34 @@ export default function ExperimentRegister({
     }
   };
 
-  const pushDataCondition = (
-    newConditionType: ConditionType,
-    isControl: boolean,
-    columnName: string,
-    condition: Condition
-  ) => {
-    if (newConditionType) {
-      if (isControl) {
-        const isExistedInControl = controlDataConditions.some(
-          (cond) => cond.columnName === columnName
+  const pushDataCondition = (isControl: boolean, condition: Condition) => {
+    const columnName = condition.columnName;
+    if (isControl) {
+      const isExistedInControl = controlDataConditions.some(
+        (cond) => cond.columnName === columnName
+      );
+      if (isExistedInControl) {
+        const newDataConditions = controlDataConditions.map((cond) =>
+          cond.columnName === columnName ? condition : cond
         );
-        if (isExistedInControl) {
-          const newDataConditions = controlDataConditions.map((cond) =>
-            cond.columnName === columnName ? condition : cond
-          );
-          setControlDataConditions(newDataConditions);
-        } else {
-          setControlDataConditions([...controlDataConditions, condition]);
-        }
+        setControlDataConditions(newDataConditions);
       } else {
-        const isExistedInExperimental = experimentalDataConditions.some(
-          (cond) => cond.columnName === columnName
+        setControlDataConditions([...controlDataConditions, condition]);
+      }
+    } else {
+      const isExistedInExperimental = experimentalDataConditions.some(
+        (cond) => cond.columnName === columnName
+      );
+      if (isExistedInExperimental) {
+        const newDataConditions = experimentalDataConditions.map((cond) =>
+          cond.columnName === columnName ? condition : cond
         );
-        if (isExistedInExperimental) {
-          const newDataConditions = experimentalDataConditions.map((cond) =>
-            cond.columnName === columnName ? condition : cond
-          );
-          setExperimentalDataConditions(newDataConditions);
-        } else {
-          setExperimentalDataConditions([
-            ...experimentalDataConditions,
-            condition,
-          ]);
-        }
+        setExperimentalDataConditions(newDataConditions);
+      } else {
+        setExperimentalDataConditions([
+          ...experimentalDataConditions,
+          condition,
+        ]);
       }
     }
   };
@@ -229,6 +201,7 @@ export default function ExperimentRegister({
       setIsError(true);
     }
   };
+  console.log(experimentalDataConditions, controlDataConditions);
 
   return (
     <div>
@@ -281,10 +254,7 @@ export default function ExperimentRegister({
           {experimentalDataInfo && (
             <MetadataTable
               dataInfo={experimentalDataInfo}
-              handleNumberConditions={handleNumberConditions}
-              handleStringConditions={handleStringConditions}
-              handleBooleanConditions={handleBooleanConditions}
-              handleCreatedAtConditions={handleCreatedAtConditions}
+              handleCondition={handleCondition}
             />
           )}
           <label htmlFor="controlDataId">대조군</label>
@@ -305,10 +275,7 @@ export default function ExperimentRegister({
             <MetadataTable
               dataInfo={controlDataInfo}
               isControl={true}
-              handleNumberConditions={handleNumberConditions}
-              handleStringConditions={handleStringConditions}
-              handleBooleanConditions={handleBooleanConditions}
-              handleCreatedAtConditions={handleCreatedAtConditions}
+              handleCondition={handleCondition}
             />
           )}
           <section>

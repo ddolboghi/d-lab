@@ -1,46 +1,42 @@
 "use client";
 
-import { CreatedAtCondition } from "@/utils/types";
+import { Condition, CreatedAtCondition } from "@/utils/types";
 import { useState } from "react";
 
 type CreatedAtFilterProps = {
   isControl: boolean;
   columnName: string;
-  handleCreatedAtConditions: (
-    isControl: boolean,
-    columnName: string,
-    createdAtConditionValue: CreatedAtCondition
-  ) => void;
+  handleCondition: (isControl: boolean, condition: Condition) => void;
 };
 
 export default function CreatedAtFilter({
   isControl,
   columnName,
-  handleCreatedAtConditions,
+  handleCondition,
 }: CreatedAtFilterProps) {
-  const [createdAtConditionValue, setCreatedAtConditionValue] =
+  const [createdAtCondition, setCreatedAtCondition] =
     useState<CreatedAtCondition>({
-      over: null,
-      under: null,
+      columnName: columnName,
+      conditionType: "createdAtConditionValue",
+      conditionValue: {
+        under: null,
+        over: null,
+      },
     });
 
-  const handleCreatedAtConditionValue = (isOver: boolean, value: any) => {
+  const handleCreatedAtCondition = (isOver: boolean, value: any) => {
     let newValue = value === "" ? null : value;
-    let newCreatedAtConditionValue = {
-      ...createdAtConditionValue,
+    let newCreatedAtCondition: CreatedAtCondition = {
+      ...createdAtCondition,
     };
     if (isOver) {
-      newCreatedAtConditionValue.over = newValue;
-      setCreatedAtConditionValue(newCreatedAtConditionValue);
+      newCreatedAtCondition.conditionValue.over = newValue;
+      setCreatedAtCondition(newCreatedAtCondition);
     } else {
-      newCreatedAtConditionValue.under = newValue;
-      setCreatedAtConditionValue(newCreatedAtConditionValue);
+      newCreatedAtCondition.conditionValue.under = newValue;
+      setCreatedAtCondition(newCreatedAtCondition);
     }
-    handleCreatedAtConditions(
-      isControl,
-      columnName,
-      newCreatedAtConditionValue
-    );
+    handleCondition(isControl, createdAtCondition);
   };
 
   return (
@@ -49,14 +45,14 @@ export default function CreatedAtFilter({
         type="datetime-local"
         name="endTime"
         className="border border-gray-300 rounded p-1 mx-2"
-        onChange={(e) => handleCreatedAtConditionValue(true, e.target.value)}
+        onChange={(e) => handleCreatedAtCondition(true, e.target.value)}
       />
       <span>이상</span>
       <input
         type="datetime-local"
         name="endTime"
         className="border border-gray-300 rounded p-1 mx-2"
-        onChange={(e) => handleCreatedAtConditionValue(false, e.target.value)}
+        onChange={(e) => handleCreatedAtCondition(false, e.target.value)}
       />
       <span>이하</span>
     </div>

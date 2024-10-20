@@ -65,40 +65,54 @@ export interface ExperimentForUpdate {
 
 /* 필터 조건 타입 */
 
-export type Condition = {
+export type Condition =
+  | StringIncludedCondition
+  | StringArrayCondition
+  | NumberEqualCondition
+  | NumberRangeCondition
+  | BooleanCondition
+  | CreatedAtCondition;
+
+export type StringIncludedCondition = {
   columnName: string;
-  conditionType: ConditionType;
-  conditionValue: ConditionValue;
+  conditionType: "includedString" | "notIncludedString";
+  conditionValue: string | null;
 };
 
-export type ConditionType =
-  | "includedString"
-  | "notIncludedString"
-  | "selectedStrings"
-  | "notSelectedStrings"
-  | "equalConditionValue"
-  | "rangeConditionValue"
-  | "booleanConditionValue"
-  | "createdAtConditionValue"
-  | null;
+export type StringArrayCondition = {
+  columnName: string;
+  conditionType: "selectedStrings" | "notSelectedStrings";
+  conditionValue: string[] | null;
+};
 
-export type ConditionValue =
-  | string
-  | string[]
-  | number
-  | RangeCondition
-  | boolean
-  | CreatedAtCondition
-  | null;
+export type NumberEqualCondition = {
+  columnName: string;
+  conditionType: "equalConditionValue";
+  conditionValue: number | null;
+};
 
-export type RangeCondition = {
-  underConditionValue: number | null;
-  overConditionValue: number | null;
+export type NumberRangeCondition = {
+  columnName: string;
+  conditionType: "rangeConditionValue";
+  conditionValue: {
+    under: number | null;
+    over: number | null;
+  };
+};
+
+export type BooleanCondition = {
+  columnName: string;
+  conditionType: "booleanConditionValue";
+  conditionValue: boolean | null;
 };
 
 export type CreatedAtCondition = {
-  under: string | null;
-  over: string | null;
+  columnName: string;
+  conditionType: "createdAtConditionValue";
+  conditionValue: {
+    under: string | null;
+    over: string | null;
+  };
 };
 
 /* signin */

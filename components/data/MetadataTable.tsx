@@ -1,41 +1,16 @@
-import { CreatedAtCondition, DataInfo, RangeCondition } from "@/utils/types";
+import { Condition, DataInfo } from "@/utils/types";
 import MetadataFilter from "./MetadataFilter";
 
 type MetadataTableProps = {
   dataInfo: DataInfo;
   isControl?: boolean;
-  handleNumberConditions: (
-    isControl: boolean,
-    columnName: string,
-    equalConditionValue: number | null,
-    rangeCondition: RangeCondition
-  ) => void;
-  handleStringConditions: (
-    isControl: boolean,
-    columnName: string,
-    isNotCondition: boolean,
-    selectedStrings: string[],
-    includedString: string
-  ) => void;
-  handleBooleanConditions: (
-    isControl: boolean,
-    columnName: string,
-    booleanConditionValue: boolean | null
-  ) => void;
-  handleCreatedAtConditions: (
-    isControl: boolean,
-    columnName: string,
-    createdAtConditionValue: CreatedAtCondition
-  ) => void;
+  handleCondition: (isControl: boolean, condition: Condition) => void;
 };
 
 export default function MetadataTable({
   dataInfo,
   isControl = false,
-  handleNumberConditions,
-  handleStringConditions,
-  handleBooleanConditions,
-  handleCreatedAtConditions,
+  handleCondition,
 }: MetadataTableProps) {
   return (
     <table>
@@ -61,10 +36,7 @@ export default function MetadataTable({
                 url={dataInfo.url}
                 headerPairs={dataInfo.headers}
                 metadata={md}
-                handleNumberConditions={handleNumberConditions}
-                handleStringConditions={handleStringConditions}
-                handleBooleanConditions={handleBooleanConditions}
-                handleCreatedAtConditions={handleCreatedAtConditions}
+                handleCondition={handleCondition}
               />
             </td>
           </tr>
