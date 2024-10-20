@@ -3,7 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
-export const googleLogin = async () => {
+export const googleLogin = async (redirectRoute: string) => {
   const getURL = () => {
     let url = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000/";
     // Make sure to include `https://` when not localhost.
@@ -18,7 +18,7 @@ export const googleLogin = async () => {
     provider: "google",
     options: {
       queryParams: { access_type: "offline", prompt: "consent" },
-      redirectTo: `${getURL()}/auth/callback?next=/verify`,
+      redirectTo: `${getURL()}/auth/callback?next=/${redirectRoute}`,
     },
   });
 
