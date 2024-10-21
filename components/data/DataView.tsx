@@ -18,8 +18,6 @@ export default function DataView({
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [rawfetchCycle, setRawFetchCycle] = useState<number>(10);
-  const [fetchCycle, setFetchCycle] = useState<number>(10);
 
   useEffect(() => {
     const getFilteredData = async () => {
@@ -40,54 +38,24 @@ export default function DataView({
       setLoading(false);
     };
 
-    if (fetchCycle >= 5) {
-      const intervalId = setInterval(() => {
-        const currentNow = new Date();
-        if (endTime) {
-          const endDateTime = new Date(endTime);
-          if (currentNow < endDateTime) {
-            getFilteredData();
-          } else {
-            clearInterval(intervalId);
-          }
-        } else {
+    const intervalId = setInterval(() => {
+      const currentNow = new Date();
+      if (endTime) {
+        const endDateTime = new Date(endTime);
+        if (currentNow < endDateTime) {
           getFilteredData();
+        } else {
+          clearInterval(intervalId);
         }
-      }, fetchCycle * 1000);
-      return () => clearInterval(intervalId);
-    }
-  }, [fetchCycle]);
-
-  const handleRawFetchCycle = (value: string) => {
-    if (!isNaN(Number(value)) && Number.isInteger(Number(value))) {
-      setRawFetchCycle(Number(value));
-      setError(null);
-    } else {
-      setError("잘못된 값입니다. 최소 5초 주기로 데이터를 불러올 수 있습니다.");
-    }
-  };
-
-  const handleCycleBtn = () => {
-    setFetchCycle(rawfetchCycle);
-  };
+      } else {
+        getFilteredData();
+      }
+    }, 10 * 1000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <div className="flex flex-col">
-      <div>
-        <label>새로고침 주기(초)</label>
-        <input
-          type="text"
-          value={rawfetchCycle}
-          className="border border-black rounded px-1"
-          onChange={(e) => handleRawFetchCycle(e.target.value)}
-        />
-        <button
-          onClick={handleCycleBtn}
-          className="rounded bg-blue-400 text-white px-1"
-        >
-          적용
-        </button>
-      </div>
       {loading && <span>로딩 중...</span>}
       {error && <p className="text-red-400">{error}</p>}
       <table className="text-center">
