@@ -20,16 +20,14 @@ export async function middleware(request: NextRequest) {
     if (!isLoggedIn) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-  }
-
-  const isRegisteredUser = await verifyRegisteredUser(user?.email);
-  if (pathname.startsWith("/dashboard")) {
+    const isRegisteredUser = await verifyRegisteredUser(user?.email);
     if (!isRegisteredUser) {
       return NextResponse.redirect(new URL("/logout", request.url));
     }
   }
 
   if (pathname.startsWith("/logout")) {
+    const isRegisteredUser = await verifyRegisteredUser(user?.email);
     if (isRegisteredUser) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
