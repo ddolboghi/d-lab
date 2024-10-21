@@ -18,7 +18,7 @@ export default function DataView({
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  console.log(endTime);
   useEffect(() => {
     const getFilteredData = async () => {
       setLoading(true);
@@ -41,6 +41,7 @@ export default function DataView({
     const intervalId = setInterval(() => {
       const currentNow = new Date();
       if (endTime) {
+        console.log(currentNow < endTime);
         if (currentNow < endTime) {
           getFilteredData();
         } else {
