@@ -158,7 +158,7 @@ export const updateConclusion = async (
   }
 };
 
-export const selectConclusionById = async (experimentId: string) => {
+export const selectConclusionById = async (experimentId: number) => {
   try {
     const { data, error } = await supabaseClient
       .from("experiment")
