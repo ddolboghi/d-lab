@@ -52,7 +52,7 @@ export interface ExperimentForRead extends Experiment {
   id: number;
   service_id: number;
   created_at: string;
-  conclusion: string | null;
+  conclusion: Conclusion | null;
 }
 
 export interface ExperimentForUpdate {
@@ -60,8 +60,10 @@ export interface ExperimentForUpdate {
   title: string;
   overview: string;
   goal: number;
-  conclusion: string | null;
+  conclusion: Conclusion | null;
 }
+
+export type Conclusion = { actual: number | null; result: boolean };
 
 /* 필터 조건 타입 */
 

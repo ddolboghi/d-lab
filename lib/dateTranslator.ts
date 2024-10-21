@@ -13,3 +13,8 @@ export const formatDateUTC = (date: Date) => {
 
   return `${year}.${month}.${day} ${hours}:${minutes}:${seconds}`;
 };
+
+export const stringToUTC = (timeString: string) => {
+  const localDate = new Date(timeString);
+  return new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+};

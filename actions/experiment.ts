@@ -1,7 +1,12 @@
 "use server";
 
 import { supabaseClient } from "@/lib/getSupabaseClient";
-import { Condition, Experiment, ExperimentForRead } from "@/utils/types";
+import {
+  Conclusion,
+  Condition,
+  Experiment,
+  ExperimentForRead,
+} from "@/utils/types";
 import { revalidateTag } from "next/cache";
 
 export const insertExperiment = async (
@@ -100,7 +105,6 @@ export const updateExperimentById = async (
       title: formData.get("title"),
       overview: formData.get("overview"),
       goal: formData.get("goal"),
-      conclusion: formData.get("conclusion"),
     };
 
     const { error } = await supabaseClient
@@ -136,18 +140,15 @@ export const deleteExperimentById = async (experimentId: number) => {
 
 export const updateConclusion = async (
   experimentId: number,
-  actual: number,
-  goal: number
+  conclusion: Conclusion
 ) => {
-  const conclusion = actual >= goal ? "가설은 참입니다." : "가설은 거짓입니다.";
-
   try {
     const { data, error } = await supabaseClient
       .from("experiment")
       .update({ conclusion: conclusion })
       .eq("id", experimentId)
       .select("conclusion")
-      .single<{ conclusion: string }>();
+      .single<{ conclusion: Conclusion }>();
 
     if (error) throw error;
     revalidateTag("updateConclusion");
@@ -164,10 +165,9 @@ export const selectConclusionById = async (experimentId: number) => {
       .from("experiment")
       .select("conclusion")
       .eq("id", experimentId)
-      .single<{ conclusion: string }>();
+      .single<{ conclusion: Conclusion }>();
 
     if (error) throw error;
-
     return data.conclusion;
   } catch (e) {
     console.error("[selectConclusionById]", e);

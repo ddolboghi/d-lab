@@ -4,7 +4,7 @@ import {
 } from "@/actions/experiment";
 import ExperimentEdit from "@/components/experiment/ExperimentEdit";
 import { ExperimentForUpdate } from "@/utils/types";
-import { formatDateUTC, toKst } from "@/lib/dateTranslator";
+import { formatDateUTC, stringToUTC, toKst } from "@/lib/dateTranslator";
 import { selectDataInfoById } from "@/actions/serviceData";
 import DataView from "@/components/data/DataView";
 import ExperimentConclusion from "@/components/experiment/ExperimentConclusion";
@@ -30,23 +30,10 @@ export default async function page({
   const controlDataInfo = await selectDataInfoById(experiment.control_data_id);
 
   const createdAt = formatDateUTC(toKst(new Date(experiment.created_at)));
-  const endTime = experiment.end_time ? new Date(experiment.end_time) : null;
+  const endTime = experiment.end_time ? stringToUTC(experiment.end_time) : null;
   const formattedEndTime = experiment.end_time
     ? formatDateUTC(new Date(experiment.end_time))
     : "";
-
-  const utcEndTime = endTime
-    ? new Date(
-        Date.UTC(
-          endTime.getUTCFullYear(),
-          endTime.getUTCMonth(),
-          endTime.getUTCDate(),
-          endTime.getUTCHours(),
-          endTime.getUTCMinutes(),
-          endTime.getUTCSeconds()
-        )
-      )
-    : new Date();
 
   const savedConclusion = await selectConclusionById(experiment.id);
   const editContent: ExperimentForUpdate = {
@@ -65,7 +52,7 @@ export default async function page({
             <ExperimentEdit
               serviceId={serviceId}
               editContent={editContent}
-              isEnd={new Date() > utcEndTime}
+              isEnd={endTime ? new Date() >= endTime : false}
             />
           </li>
         </ul>
@@ -89,7 +76,7 @@ export default async function page({
           <div>
             {experimentalDataInfo ? (
               <DataView
-                endTime={utcEndTime}
+                endTime={endTime}
                 dataInfo={experimentalDataInfo}
                 conditions={experiment.experimental_data_conditions}
               />
@@ -103,7 +90,7 @@ export default async function page({
           <div>
             {controlDataInfo ? (
               <DataView
-                endTime={utcEndTime}
+                endTime={endTime}
                 dataInfo={controlDataInfo}
                 conditions={experiment.control_data_conditions}
               />
@@ -121,7 +108,7 @@ export default async function page({
               experimentalDataInfo={experimentalDataInfo}
               controlDataInfo={controlDataInfo}
               experiment={experiment}
-              endTime={utcEndTime}
+              endTime={endTime}
             />
           )}
         </section>

@@ -1,8 +1,12 @@
 "use client";
 
-import { fetchFilteredLogData } from "@/actions/connectData";
+import { fetchLogDataUnderEndTime } from "@/actions/connectData";
 import { selectConclusionById, updateConclusion } from "@/actions/experiment";
-import { DataInfoForConenct, ExperimentForRead } from "@/utils/types";
+import {
+  Conclusion,
+  DataInfoForConenct,
+  ExperimentForRead,
+} from "@/utils/types";
 import { useEffect, useState } from "react";
 
 type ExperimentConclusionProps = {
@@ -18,53 +22,55 @@ export default function ExperimentConclusion({
   experiment,
   endTime,
 }: ExperimentConclusionProps) {
-  const [conclusion, setConclusion] = useState("");
-  const [actual, setActual] = useState<number | null>(null);
+  const [conclusion, setConclusion] = useState<Conclusion | null>(
+    experiment.conclusion
+  );
 
   useEffect(() => {
     const calculateConclusion = async () => {
       const savedConclusion = await selectConclusionById(experiment.id);
       if (savedConclusion !== null) {
         setConclusion(savedConclusion);
-        return;
-      }
+      } else if (savedConclusion === null && endTime !== null) {
+        const experimentFilteredData = await fetchLogDataUnderEndTime(
+          experimentalDataInfo.url,
+          experimentalDataInfo.headers,
+          experimentalDataInfo.metadata,
+          experiment.experimental_data_conditions,
+          endTime
+        );
+        const controlFilteredData = await fetchLogDataUnderEndTime(
+          controlDataInfo.url,
+          controlDataInfo.headers,
+          controlDataInfo.metadata,
+          experiment.control_data_conditions,
+          endTime
+        );
 
-      const experimentFilteredData = await fetchFilteredLogData(
-        experimentalDataInfo.url,
-        experimentalDataInfo.headers,
-        experimentalDataInfo.metadata,
-        experiment.experimental_data_conditions
-      );
-      const controlFilteredData = await fetchFilteredLogData(
-        controlDataInfo.url,
-        controlDataInfo.headers,
-        controlDataInfo.metadata,
-        experiment.control_data_conditions
-      );
+        const controlValue = controlFilteredData
+          ? controlFilteredData.length
+          : null;
+        const experimentalValue = experimentFilteredData
+          ? experimentFilteredData.length
+          : null;
 
-      const controlValue = controlFilteredData
-        ? controlFilteredData.length
-        : null;
-      const experimentalValue = experimentFilteredData
-        ? experimentFilteredData.length
-        : null;
+        let actual: number | null = null;
+        if (endTime) {
+          const isEnd = new Date() >= endTime;
 
-      let actual: number | null = null;
-      if (endTime) {
-        const isEnd = new Date() >= endTime;
-
-        console.log("isEnd:", isEnd);
-        console.log(new Date(), endTime);
-        if (isEnd) {
-          if (experimentalValue && controlValue) {
-            actual = (experimentalValue / controlValue) * 100;
-            setActual(actual);
-          }
-          if (actual) {
+          console.log(new Date(), endTime);
+          if (isEnd) {
+            if (experimentalValue && controlValue) {
+              actual = (experimentalValue / controlValue) * 100;
+            }
+            const newConclusion: Conclusion = {
+              ...conclusion,
+              actual: actual,
+              result: actual && actual >= experiment.goal ? true : false,
+            };
             const updatedConclusion = await updateConclusion(
               experiment.id,
-              actual,
-              experiment.goal
+              newConclusion
             );
             if (updatedConclusion) {
               setConclusion(updatedConclusion);
@@ -79,8 +85,14 @@ export default function ExperimentConclusion({
   return (
     <div>
       <p>목표 수치: {experiment.goal}%</p>
-      {actual && <p>실제 수치: {actual}%</p>}
-      <p>{conclusion}</p>
+      {conclusion ? (
+        <div>
+          {conclusion.actual && <p>실제 수치: {conclusion.actual}%</p>}
+          <p>{conclusion?.result ? "참" : "거짓"}</p>
+        </div>
+      ) : (
+        <p>실험 진행 중...</p>
+      )}
     </div>
   );
 }
