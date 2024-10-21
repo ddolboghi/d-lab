@@ -4,9 +4,10 @@ import Link from "next/link";
 
 export default async function DashboardPage() {
   const services = await selectAllService();
+
   return (
-    <main>
-      <div>대시보드</div>
+    <div className="w-full h-screen mx-2">
+      <h1 className="font-bold text-[32px] pl-[50px] pt-[20px]">Projects</h1>
       <ul className="list-none">
         {services ? (
           services.map((service) => (
@@ -27,6 +28,6 @@ export default async function DashboardPage() {
         )}
       </ul>
       <AddService />
-    </main>
+    </div>
   );
 }
