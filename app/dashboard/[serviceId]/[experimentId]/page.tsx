@@ -1,13 +1,13 @@
 import {
   selectByServiceIdAndExperimentIdInLogData,
-  updateConclusion,
+  selectConclusionById,
 } from "@/actions/experiment";
 import ExperimentEdit from "@/components/experiment/ExperimentEdit";
 import { ExperimentForUpdate } from "@/utils/types";
 import { formatDateUTC, toKst } from "@/lib/dateTranslator";
 import { selectDataInfoById } from "@/actions/serviceData";
 import DataView from "@/components/data/DataView";
-import { fetchFilteredLogData } from "@/actions/connectData";
+import ExperimentConclusion from "@/components/experiment/ExperimentConclusion";
 
 export default async function page({
   params,
@@ -24,7 +24,7 @@ export default async function page({
   if (!experiment) {
     return <main>실험을 불러올 수 없습니다.</main>;
   }
-  const experimentDataInfo = await selectDataInfoById(
+  const experimentalDataInfo = await selectDataInfoById(
     experiment.experimental_data_id
   );
   const controlDataInfo = await selectDataInfoById(experiment.control_data_id);
@@ -34,55 +34,13 @@ export default async function page({
     ? formatDateUTC(new Date(experiment.end_time))
     : "";
 
-  let experimentFilteredData: any[] | null = null;
-  if (experimentDataInfo) {
-    experimentFilteredData = await fetchFilteredLogData(
-      experimentDataInfo.url,
-      experimentDataInfo.headers,
-      experimentDataInfo.metadata,
-      experiment.experimental_data_conditions
-    );
-  }
-
-  let controlFilteredData: any[] | null = null;
-  if (controlDataInfo) {
-    controlFilteredData = await fetchFilteredLogData(
-      controlDataInfo.url,
-      controlDataInfo.headers,
-      controlDataInfo.metadata,
-      experiment.control_data_conditions
-    );
-  }
-
-  const controlValue = controlFilteredData ? controlFilteredData.length : null;
-  const experimentalValue = experimentFilteredData
-    ? experimentFilteredData.length
-    : null;
-
-  let actual: number | null = null;
-  let conclusionContent: string | null = experiment.conclusion;
-  if (experiment.end_time) {
-    const isEnd = new Date() >= new Date(experiment.end_time);
-    if (isEnd) {
-      if (experimentalValue && controlValue) {
-        actual = (experimentalValue / controlValue) * 100;
-      }
-      if (conclusionContent && actual) {
-        conclusionContent = await updateConclusion(
-          experiment.id,
-          actual,
-          experiment.goal
-        );
-      }
-    }
-  }
-
+  const savedConclusion = await selectConclusionById(experiment.id);
   const editContent: ExperimentForUpdate = {
     id: experiment.id,
     title: experiment.title,
     overview: experiment.overview,
     goal: experiment.goal,
-    conclusion: conclusionContent,
+    conclusion: savedConclusion,
   };
   return (
     <main>
@@ -115,10 +73,10 @@ export default async function page({
         <section className="border border-black p-2">
           <h1>실험군</h1>
           <div>
-            {experimentDataInfo ? (
+            {experimentalDataInfo ? (
               <DataView
                 endTime={experiment.end_time}
-                dataInfo={experimentDataInfo}
+                dataInfo={experimentalDataInfo}
                 conditions={experiment.experimental_data_conditions}
               />
             ) : (
@@ -142,9 +100,15 @@ export default async function page({
         </section>
         <section className="border border-black p-2">
           <h1>결론</h1>
-          <p>목표 수치: {experiment.goal}%</p>
-          {actual && <p>실제 수치: {actual}%</p>}
-          {conclusionContent && <p>{conclusionContent}</p>}
+          {experimentalDataInfo === null || controlDataInfo === null ? (
+            <p>결론을 계산할 수 없습니다.</p>
+          ) : (
+            <ExperimentConclusion
+              experimentalDataInfo={experimentalDataInfo}
+              controlDataInfo={controlDataInfo}
+              experiment={experiment}
+            />
+          )}
         </section>
       </div>
     </main>
