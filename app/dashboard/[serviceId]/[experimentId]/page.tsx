@@ -45,10 +45,6 @@ export default async function page({
     conclusion: savedConclusion,
   };
 
-  const clientSideEndTime = experiment.end_time
-    ? stringToUTC(experiment.end_time)
-    : null;
-
   return (
     <main>
       <nav>
@@ -58,9 +54,7 @@ export default async function page({
             <ExperimentEdit
               serviceId={serviceId}
               editContent={editContent}
-              isEnd={
-                clientSideEndTime ? new Date() >= clientSideEndTime : false
-              }
+              isEnd={endTime ? new Date() >= endTime : false}
             />
           </li>
         </ul>
@@ -84,7 +78,7 @@ export default async function page({
           <div>
             {experimentalDataInfo ? (
               <DataView
-                endTime={clientSideEndTime}
+                endTime={experiment.end_time}
                 dataInfo={experimentalDataInfo}
                 conditions={experiment.experimental_data_conditions}
               />
@@ -98,7 +92,7 @@ export default async function page({
           <div>
             {controlDataInfo ? (
               <DataView
-                endTime={clientSideEndTime}
+                endTime={experiment.end_time}
                 dataInfo={controlDataInfo}
                 conditions={experiment.control_data_conditions}
               />

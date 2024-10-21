@@ -1,11 +1,12 @@
 "use client";
 
 import { fetchFilteredLogData } from "@/actions/connectData";
+import { stringToUTC } from "@/lib/dateTranslator";
 import { Condition, DataInfoForConenct } from "@/utils/types";
 import { useEffect, useState } from "react";
 
 type DataViewProps = {
-  endTime: Date | null;
+  endTime: string | null;
   dataInfo: DataInfoForConenct;
   conditions: Condition[];
 };
@@ -18,7 +19,7 @@ export default function DataView({
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  console.log(endTime);
+
   useEffect(() => {
     const getFilteredData = async () => {
       setLoading(true);
@@ -41,7 +42,13 @@ export default function DataView({
     const intervalId = setInterval(() => {
       const currentNow = new Date();
       if (endTime) {
-        if (currentNow < endTime) {
+        console.log(
+          "[DataView]\nstringToUTC:",
+          stringToUTC(endTime),
+          "\nDate:",
+          new Date(endTime)
+        );
+        if (currentNow < stringToUTC(endTime)) {
           getFilteredData();
         } else {
           clearInterval(intervalId);

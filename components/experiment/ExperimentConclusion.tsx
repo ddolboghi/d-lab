@@ -2,6 +2,7 @@
 
 import { fetchLogDataUnderEndTime } from "@/actions/connectData";
 import { selectConclusionById, updateConclusion } from "@/actions/experiment";
+import { stringToUTC } from "@/lib/dateTranslator";
 import {
   Conclusion,
   DataInfoForConenct,
@@ -56,9 +57,13 @@ export default function ExperimentConclusion({
 
         let actual: number | null = null;
         if (endTime) {
-          const isEnd = new Date() >= endTime;
-
-          console.log(new Date(), endTime);
+          console.log(
+            "[ExperimentConclusion]\nstringToUTC:",
+            stringToUTC(endTime.toString()),
+            "\nDate:",
+            new Date(endTime)
+          );
+          const isEnd = new Date() >= stringToUTC(endTime.toString());
           if (isEnd) {
             if (experimentalValue && controlValue) {
               actual = (experimentalValue / controlValue) * 100;

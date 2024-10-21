@@ -16,6 +16,5 @@ export const formatDateUTC = (date: Date) => {
 
 export const stringToUTC = (timeString: string) => {
   const localDate = new Date(timeString);
-  console.log("stringToUTC:", localDate);
   return new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
 };
