@@ -30,9 +30,23 @@ export default async function page({
   const controlDataInfo = await selectDataInfoById(experiment.control_data_id);
 
   const createdAt = formatDateUTC(toKst(new Date(experiment.created_at)));
-  const endTime = experiment.end_time
+  const endTime = experiment.end_time ? new Date(experiment.end_time) : null;
+  const formattedEndTime = experiment.end_time
     ? formatDateUTC(new Date(experiment.end_time))
     : "";
+
+  const utcEndTime = endTime
+    ? new Date(
+        Date.UTC(
+          endTime.getUTCFullYear(),
+          endTime.getUTCMonth(),
+          endTime.getUTCDate(),
+          endTime.getUTCHours(),
+          endTime.getUTCMinutes(),
+          endTime.getUTCSeconds()
+        )
+      )
+    : new Date();
 
   const savedConclusion = await selectConclusionById(experiment.id);
   const editContent: ExperimentForUpdate = {
@@ -51,7 +65,7 @@ export default async function page({
             <ExperimentEdit
               serviceId={serviceId}
               editContent={editContent}
-              isEnd={new Date() > new Date(endTime)}
+              isEnd={new Date() > utcEndTime}
             />
           </li>
         </ul>
@@ -68,14 +82,14 @@ export default async function page({
         </section>
         <section className="border border-black p-2">
           <h1>실험종료 시간</h1>
-          <div>{endTime}</div>
+          <div>{formattedEndTime}</div>
         </section>
         <section className="border border-black p-2">
           <h1>실험군</h1>
           <div>
             {experimentalDataInfo ? (
               <DataView
-                endTime={experiment.end_time}
+                endTime={utcEndTime}
                 dataInfo={experimentalDataInfo}
                 conditions={experiment.experimental_data_conditions}
               />
@@ -89,7 +103,7 @@ export default async function page({
           <div>
             {controlDataInfo ? (
               <DataView
-                endTime={experiment.end_time}
+                endTime={utcEndTime}
                 dataInfo={controlDataInfo}
                 conditions={experiment.control_data_conditions}
               />
@@ -107,6 +121,7 @@ export default async function page({
               experimentalDataInfo={experimentalDataInfo}
               controlDataInfo={controlDataInfo}
               experiment={experiment}
+              endTime={utcEndTime}
             />
           )}
         </section>

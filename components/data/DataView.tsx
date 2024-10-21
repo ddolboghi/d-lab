@@ -5,7 +5,7 @@ import { Condition, DataInfoForConenct } from "@/utils/types";
 import { useEffect, useState } from "react";
 
 type DataViewProps = {
-  endTime: string | null;
+  endTime: Date | null;
   dataInfo: DataInfoForConenct;
   conditions: Condition[];
 };
@@ -41,8 +41,7 @@ export default function DataView({
     const intervalId = setInterval(() => {
       const currentNow = new Date();
       if (endTime) {
-        const endDateTime = new Date(endTime);
-        if (currentNow < endDateTime) {
+        if (currentNow < endTime) {
           getFilteredData();
         } else {
           clearInterval(intervalId);

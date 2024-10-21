@@ -9,12 +9,14 @@ type ExperimentConclusionProps = {
   experimentalDataInfo: DataInfoForConenct;
   controlDataInfo: DataInfoForConenct;
   experiment: ExperimentForRead;
+  endTime: Date | null;
 };
 
 export default function ExperimentConclusion({
   experimentalDataInfo,
   controlDataInfo,
   experiment,
+  endTime,
 }: ExperimentConclusionProps) {
   const [conclusion, setConclusion] = useState("");
   const [actual, setActual] = useState<number | null>(null);
@@ -48,10 +50,11 @@ export default function ExperimentConclusion({
         : null;
 
       let actual: number | null = null;
-      if (experiment.end_time) {
-        const isEnd = new Date() >= new Date(experiment.end_time);
+      if (endTime) {
+        const isEnd = new Date() >= endTime;
+
         console.log("isEnd:", isEnd);
-        console.log(new Date(), new Date(experiment.end_time));
+        console.log(new Date(), endTime);
         if (isEnd) {
           if (experimentalValue && controlValue) {
             actual = (experimentalValue / controlValue) * 100;
