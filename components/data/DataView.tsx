@@ -41,7 +41,6 @@ export default function DataView({
     const intervalId = setInterval(() => {
       const currentNow = new Date();
       if (endTime) {
-        console.log(currentNow < endTime);
         if (currentNow < endTime) {
           getFilteredData();
         } else {

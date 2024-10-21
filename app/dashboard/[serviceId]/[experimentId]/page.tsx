@@ -45,10 +45,8 @@ export default async function page({
     conclusion: savedConclusion,
   };
 
-  const dataViewEndTime = experiment.end_time
-    ? process.env.NODE_ENV === "production"
-      ? new Date(experiment.end_time)
-      : stringToUTC(experiment.end_time)
+  const clientSideEndTime = experiment.end_time
+    ? stringToUTC(experiment.end_time)
     : null;
 
   return (
@@ -60,7 +58,9 @@ export default async function page({
             <ExperimentEdit
               serviceId={serviceId}
               editContent={editContent}
-              isEnd={endTime ? new Date() >= endTime : false}
+              isEnd={
+                clientSideEndTime ? new Date() >= clientSideEndTime : false
+              }
             />
           </li>
         </ul>
@@ -84,7 +84,7 @@ export default async function page({
           <div>
             {experimentalDataInfo ? (
               <DataView
-                endTime={dataViewEndTime}
+                endTime={clientSideEndTime}
                 dataInfo={experimentalDataInfo}
                 conditions={experiment.experimental_data_conditions}
               />
@@ -98,7 +98,7 @@ export default async function page({
           <div>
             {controlDataInfo ? (
               <DataView
-                endTime={dataViewEndTime}
+                endTime={clientSideEndTime}
                 dataInfo={controlDataInfo}
                 conditions={experiment.control_data_conditions}
               />
