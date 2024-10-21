@@ -87,14 +87,6 @@ export default function ExperimentEdit({
               className="border border-gray-300 rounded p-1 w-1/4 mr-2"
             />
           </section>
-          <section>
-            <label htmlFor="conclusion">결론</label>
-            <textarea
-              name="conclusion"
-              defaultValue={editContent.conclusion ?? ""}
-              className="border border-gray-300 rounded p-1 w-1/4 mr-2"
-            />
-          </section>
           <button type="submit" className="bg-green-400 text-white p-2">
             저장하기
           </button>
