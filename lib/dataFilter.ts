@@ -1,9 +1,4 @@
-import {
-  Condition,
-  CreatedAtCondition,
-  Metadata,
-  RangeCondition,
-} from "@/utils/types";
+import { Condition, Metadata } from "@/utils/types";
 
 export const toSet = (array: any[]): Set<string> | Set<boolean> | Set<any> => {
   if (array.length > 0) {
@@ -42,9 +37,6 @@ const metadataFilter = (data: any[], metadatas: Metadata[]) => {
     columns.forEach((column) => {
       if (column in item) {
         filteredItem[column] = item[column];
-      }
-      if ("created_at" in item) {
-        filteredItem["created_at"] = item["created_at"];
       }
     });
     return filteredItem;
@@ -94,29 +86,25 @@ const numberFilter = (data: any[], condition: Condition) => {
       condition.conditionType === "rangeConditionValue" &&
       condition.conditionValue
     ) {
-      const rangeConditionValue = condition.conditionValue as RangeCondition;
+      const rangeConditionValue = condition.conditionValue;
       if (
-        rangeConditionValue.underConditionValue !== null &&
-        rangeConditionValue.overConditionValue !== null
+        rangeConditionValue.under !== null &&
+        rangeConditionValue.over !== null
       ) {
         return (
-          rangeConditionValue.underConditionValue <= d[condition.columnName] &&
-          d[condition.columnName] <= rangeConditionValue.overConditionValue
+          rangeConditionValue.under <= d[condition.columnName] &&
+          d[condition.columnName] <= rangeConditionValue.over
         );
       } else if (
-        rangeConditionValue.underConditionValue !== null &&
-        rangeConditionValue.overConditionValue === null
+        rangeConditionValue.under !== null &&
+        rangeConditionValue.over === null
       ) {
-        return (
-          rangeConditionValue.underConditionValue <= d[condition.columnName]
-        );
+        return rangeConditionValue.under <= d[condition.columnName];
       } else if (
-        rangeConditionValue.underConditionValue === null &&
-        rangeConditionValue.overConditionValue !== null
+        rangeConditionValue.under === null &&
+        rangeConditionValue.over !== null
       ) {
-        return (
-          d[condition.columnName] <= rangeConditionValue.overConditionValue
-        );
+        return d[condition.columnName] <= rangeConditionValue.over;
       }
     }
     return true;
@@ -141,8 +129,7 @@ const booleanFilter = (data: any[], condition: Condition) => {
 const createdAtFilter = (data: any[], condition: Condition) => {
   const filteredData = data.filter((d) => {
     if (condition.conditionType === "createdAtConditionValue") {
-      const createdAtConditionValue =
-        condition.conditionValue as CreatedAtCondition;
+      const createdAtConditionValue = condition.conditionValue;
       if (
         createdAtConditionValue.over !== null &&
         createdAtConditionValue.under !== null
