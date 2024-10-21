@@ -201,7 +201,6 @@ export default function ExperimentRegister({
       setIsError(true);
     }
   };
-  console.log(experimentalDataConditions, controlDataConditions);
 
   return (
     <div>
