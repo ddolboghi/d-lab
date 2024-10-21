@@ -30,7 +30,8 @@ export default async function page({
   const controlDataInfo = await selectDataInfoById(experiment.control_data_id);
 
   const createdAt = formatDateUTC(toKst(new Date(experiment.created_at)));
-  const endTime = experiment.end_time ? stringToUTC(experiment.end_time) : null;
+
+  const endTime = experiment.end_time ? new Date(experiment.end_time) : null;
   const formattedEndTime = experiment.end_time
     ? formatDateUTC(new Date(experiment.end_time))
     : "";
@@ -43,7 +44,13 @@ export default async function page({
     goal: experiment.goal,
     conclusion: savedConclusion,
   };
-  console.log("page:", endTime);
+
+  const dataViewEndTime = experiment.end_time
+    ? process.env.NODE_ENV === "production"
+      ? new Date(experiment.end_time)
+      : stringToUTC(experiment.end_time)
+    : null;
+
   return (
     <main>
       <nav>
@@ -77,7 +84,7 @@ export default async function page({
           <div>
             {experimentalDataInfo ? (
               <DataView
-                endTime={endTime}
+                endTime={dataViewEndTime}
                 dataInfo={experimentalDataInfo}
                 conditions={experiment.experimental_data_conditions}
               />
@@ -91,7 +98,7 @@ export default async function page({
           <div>
             {controlDataInfo ? (
               <DataView
-                endTime={endTime}
+                endTime={dataViewEndTime}
                 dataInfo={controlDataInfo}
                 conditions={experiment.control_data_conditions}
               />
