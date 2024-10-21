@@ -43,6 +43,7 @@ export default async function page({
     goal: experiment.goal,
     conclusion: savedConclusion,
   };
+  console.log("page:", endTime);
   return (
     <main>
       <nav>
