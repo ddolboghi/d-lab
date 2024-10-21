@@ -42,12 +42,6 @@ export default function DataView({
     const intervalId = setInterval(() => {
       const currentNow = new Date();
       if (endTime) {
-        console.log(
-          "[DataView]\nstringToUTC:",
-          stringToUTC(endTime),
-          "\nDate:",
-          new Date(endTime)
-        );
         if (currentNow < stringToUTC(endTime)) {
           getFilteredData();
         } else {

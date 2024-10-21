@@ -57,12 +57,6 @@ export default function ExperimentConclusion({
 
         let actual: number | null = null;
         if (endTime) {
-          console.log(
-            "[ExperimentConclusion]\nstringToUTC:",
-            stringToUTC(endTime.toString()),
-            "\nDate:",
-            new Date(endTime)
-          );
           const isEnd = new Date() >= stringToUTC(endTime.toString());
           if (isEnd) {
             if (experimentalValue && controlValue) {
