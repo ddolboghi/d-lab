@@ -1,7 +1,7 @@
 "use server";
 
 import { supabaseClient } from "@/lib/getSupabaseClient";
-import { ServiceWithCreatedAt, ServiceWithId } from "@/utils/types";
+import { ServiceWithId } from "@/utils/types";
 import { revalidateTag } from "next/cache";
 
 export const insertService = async (addServiceFormData: FormData) => {
@@ -63,7 +63,7 @@ export const selectServiceById = async (serviceId: number) => {
 
     if (!response.ok) throw response.status;
 
-    const data: ServiceWithCreatedAt[] = await response.json();
+    const data: ServiceWithId[] = await response.json();
 
     if (data.length > 1) throw new Error("More than one service row exists.");
 
