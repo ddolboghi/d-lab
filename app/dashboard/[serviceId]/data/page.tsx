@@ -8,7 +8,7 @@ export default async function page({
   params: { serviceId: string };
 }) {
   const serviceId = params.serviceId;
-  const registeredDatas = await selectDataInfoByServiceId(serviceId);
+  const registeredDatas = await selectDataInfoByServiceId(Number(serviceId));
   return (
     <main>
       <table className="border-collapse border border-black">
