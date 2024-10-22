@@ -13,10 +13,6 @@ export interface ServiceWithId extends Service {
   id: number;
 }
 
-export interface ServiceWithCreatedAt extends ServiceWithId {
-  created_at: Date;
-}
-
 export interface DataInfo {
   id: number;
   title: string;

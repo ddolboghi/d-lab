@@ -1,65 +1,107 @@
 "use client";
 
 import { deleteServiceById, updateServiceById } from "@/actions/service";
-import { ServiceWithCreatedAt } from "@/utils/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Ellipsis } from "lucide-react";
+import { ServiceWithId } from "@/utils/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { MAX_SERVICE_NAME } from "@/utils/constant";
 
 type ServiceInfoProps = {
-  serviceInfo: ServiceWithCreatedAt | null;
+  service: ServiceWithId;
 };
 
-export default function ServiceInfo({ serviceInfo }: ServiceInfoProps) {
-  const [showEdit, setShowEdit] = useState(false);
-  const router = useRouter();
-
-  if (!serviceInfo) {
-    return <div>서비스가 존재하지 않습니다.</div>;
-  }
-
-  const handleShowEdit = () => {
-    setShowEdit(!showEdit);
-  };
+export default function ServiceInfo({ service }: ServiceInfoProps) {
+  const [error, setError] = useState<string | null>(null);
 
   const handleEdit = async (formData: FormData) => {
-    const response = await updateServiceById(serviceInfo.id, formData);
-    if (response) {
-      handleShowEdit();
+    const inputName = formData.get("name") as string;
+    if (inputName.length >= MAX_SERVICE_NAME) {
+      setError("128자를 넘을 수 없습니다.");
+      return;
+    }
+    const response = await updateServiceById(service.id, formData);
+    if (!response) {
+      setError("수정에 실패했습니다.");
     }
   };
 
   const handleDelete = async () => {
     const result = confirm("정말 삭제하시겠어요?");
     if (result) {
-      const response = await deleteServiceById(serviceInfo.id);
-      if (response) {
-        router.replace("/dashboard");
+      const response = await deleteServiceById(service.id);
+      if (!response) {
+        setError("삭제에 실패했습니다.");
       }
     }
   };
 
   return (
     <div>
-      <h1>{serviceInfo.name}</h1>
-      <button onClick={handleShowEdit} className="bg-blue-400 text-white p-2">
-        서비스 편집
-      </button>
-      {showEdit && (
-        <form action={handleEdit}>
-          <label htmlFor="name">서비스 명</label>
-          <input
-            name="name"
-            defaultValue={serviceInfo.name}
-            className="border border-gray-300 rounded p-1 mr-2"
-          />
-          <button type="submit" className="bg-green-400 text-white p-2">
-            저장
-          </button>
-        </form>
-      )}
-      <button onClick={handleDelete} className="bg-red-400 text-white p-2">
-        서비스 삭제
-      </button>
+      <div className="flex flex-row justify-between items-center pt-4">
+        <h1 className="flex-grow text-left">{service.name}</h1>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex flex-row gap-2 items-center">
+            <Ellipsis />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-white border-none rounded-[6px]">
+            <Dialog>
+              <DialogTrigger className="text-[14px] p-2 w-full text-left">
+                편집
+              </DialogTrigger>
+              <DialogContent className="bg-white rounded-full sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>프로젝트 수정하기</DialogTitle>
+                </DialogHeader>
+                <form
+                  action={handleEdit}
+                  className="flex flex-col items-end gap-3"
+                >
+                  <div className="w-full">
+                    <label className="font-medium text-[12px]">
+                      프로젝트 이름
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      minLength={1}
+                      defaultValue={service.name}
+                      placeholder={service.name}
+                      maxLength={128}
+                      className="border border-gray-300 rounded py-1 px-2 w-full placeholder:text-[12px]"
+                    />
+                    {error && (
+                      <p className="text-red-400 text-[12px]">{error}</p>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    className="bg-[#D9D9D9] text-[#494949] text-[9px] p-1 w-[60px] rounded-full hover:bg-[#6C6C6C] hover:text-white"
+                  >
+                    수정하기
+                  </button>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleDelete}>삭제</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }

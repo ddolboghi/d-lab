@@ -18,3 +18,26 @@ export const stringToUTC = (timeString: string) => {
   const localDate = new Date(timeString);
   return new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
 };
+
+export const getIsOngoing = (
+  isInServerSide: boolean,
+  endTime: string | null
+) => {
+  const now = new Date();
+  if (!endTime) {
+    return true;
+  }
+  if (isInServerSide) {
+    if (now < new Date(endTime)) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    if (now < stringToUTC(endTime)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};

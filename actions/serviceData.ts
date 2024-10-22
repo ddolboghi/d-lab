@@ -36,7 +36,7 @@ export const insertDataInfo = async (
   }
 };
 
-export const selectDataInfoByServiceId = async (serviceId: string) => {
+export const selectDataInfoByServiceId = async (serviceId: number) => {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/data_info?service_id=eq.${serviceId}&select=id,title,url,headers,metadata,created_at&order=created_at.asc`,

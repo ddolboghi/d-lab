@@ -11,18 +11,16 @@ import {
   StringArrayCondition,
   StringIncludedCondition,
 } from "@/utils/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MetadataTable from "../data/MetadataTable";
+import { selectDataInfoByServiceId } from "@/actions/serviceData";
 
 type AddExperimentProps = {
-  serviceId: string;
-  serviceDatas: DataInfo[] | null;
+  serviceId: number;
 };
 
-export default function ExperimentRegister({
-  serviceId,
-  serviceDatas,
-}: AddExperimentProps) {
+export default function ExperimentRegister({ serviceId }: AddExperimentProps) {
+  const [serviceDatas, setServiceDatas] = useState<DataInfo[] | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [experimentalDataInfo, setExperimentalDataInfo] =
     useState<DataInfo | null>(null);
@@ -34,6 +32,14 @@ export default function ExperimentRegister({
     Condition[]
   >([]);
   const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    const getServiceDatas = async () => {
+      const response = await selectDataInfoByServiceId(serviceId);
+      setServiceDatas(response);
+    };
+    getServiceDatas();
+  }, []);
 
   const handledataChange = (isExperimentData: boolean, value: string) => {
     if (serviceDatas) {
@@ -206,9 +212,9 @@ export default function ExperimentRegister({
     <div>
       <button
         onClick={() => setShowForm(!showForm)}
-        className="bg-blue-400 text-white p-2"
+        className="bg-[#E4E4E4] text-[#2D2D2D] text-[12px] p-2 my-2 w-full h-[30px] rounded-full text-center font-medium leading-none"
       >
-        실험 생성하기
+        +실험 추가
       </button>
       {showForm && (
         <form action={addExperimet}>

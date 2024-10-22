@@ -47,7 +47,7 @@ export const selectAllService = async () => {
   }
 };
 
-export const selectServiceById = async (serviceId: string) => {
+export const selectServiceById = async (serviceId: number) => {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/service?select=id,name,created_at&id=eq.${serviceId}`,

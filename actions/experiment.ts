@@ -10,7 +10,7 @@ import {
 import { revalidateTag } from "next/cache";
 
 export const insertExperiment = async (
-  serviceId: string,
+  serviceId: number,
   formData: FormData,
   experimentalDataConditions: Condition[],
   controlDataConditions: Condition[]
@@ -32,7 +32,7 @@ export const insertExperiment = async (
   try {
     const { error } = await supabaseClient
       .from("experiment")
-      .insert([{ service_id: Number(serviceId), ...rawFormData }]);
+      .insert([{ service_id: serviceId, ...rawFormData }]);
 
     if (error) throw error;
     revalidateTag("insertExperiment");
@@ -43,7 +43,7 @@ export const insertExperiment = async (
   }
 };
 
-export const selectExperimentsByServiceId = async (serviceId: string) => {
+export const selectExperimentsByServiceId = async (serviceId: number) => {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/experiment?service_id=eq.${serviceId}&select=*&order=created_at.asc`,

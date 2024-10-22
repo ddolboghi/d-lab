@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard } from "lucide-react";
+import { Home, LayoutDashboard, Database } from "lucide-react";
 
 import {
   Sidebar,
@@ -20,8 +20,13 @@ const items = [
   },
   {
     title: "Projects",
-    url: "/",
+    url: "/", //생성한 서비스 id 목록 페치해서 sub 메뉴로 추가
     icon: LayoutDashboard,
+  },
+  {
+    title: "Data",
+    url: "/", //데이터 등록 페이지
+    icon: Database,
   },
 ];
 
