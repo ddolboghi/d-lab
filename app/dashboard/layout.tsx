@@ -1,6 +1,6 @@
 import AppSidebar from "@/components/AppSidebar";
 import Navbar from "@/components/Navbar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function layout({
@@ -17,7 +17,6 @@ export default async function layout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarTrigger />
       <main className="bg-[#F1F1F1] w-full">
         <Navbar userName={userName} userEmail={userEmail} />
         {children}
