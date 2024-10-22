@@ -27,7 +27,7 @@ const items = [
 
 export default function AppSidebar() {
   return (
-    <Sidebar className="top-[50px] bg-white border-none">
+    <Sidebar className="bg-white border-none ease-out" collapsible="icon">
       <SidebarContent className="bg-white">
         <SidebarGroup className="bg-white">
           <SidebarGroupContent>
