@@ -12,6 +12,7 @@ import {
 } from "./ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { SidebarTrigger } from "./ui/sidebar";
+import Link from "next/link";
 
 type NavbarProps = {
   userName: string | undefined;
@@ -35,10 +36,10 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
   return (
     <nav className="sticky top-0 left-0 z-50 bg-white w-full h-[50px] border-b-[1px] border-[#A1A1A1] flex flex-row justify-between items-center">
       <SidebarTrigger className="bg-white" />
-      <div className="flex flex-row items-center">
+      <Link href="/dashboard" className="flex flex-row items-center">
         <DLabLogoReversed />
         <h1 className="">D-Lab</h1>
-      </div>
+      </Link>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex flex-row gap-2 items-center">
           <div className="flex flex-row items-center text-[12px] text-left">
