@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard, Database } from "lucide-react";
+import { Home, Database, ChevronDown } from "lucide-react";
 
 import {
   Sidebar,
@@ -8,8 +8,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { ServiceWithId } from "@/utils/types";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
 
 // Menu items.
 const items = [
@@ -17,20 +25,15 @@ const items = [
     title: "Home",
     url: "/dashboard",
     icon: Home,
-  },
-  {
-    title: "Projects",
-    url: "/", //생성한 서비스 id 목록 페치해서 sub 메뉴로 추가
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Data",
-    url: "/", //데이터 등록 페이지
-    icon: Database,
+    hasSub: false,
   },
 ];
 
-export default function AppSidebar() {
+type AppSidebarProps = {
+  allServices: ServiceWithId[] | null;
+};
+
+export default function AppSidebar({ allServices }: AppSidebarProps) {
   return (
     <Sidebar className="bg-white border-none ease-out" collapsible="icon">
       <SidebarContent className="bg-white">
@@ -47,6 +50,31 @@ export default function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <Collapsible defaultOpen className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
+                      <Database />
+                      <span>Data</span>
+                      <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {allServices &&
+                        allServices.map((service) => (
+                          <SidebarMenuSubItem key={service.id}>
+                            <SidebarMenuButton asChild>
+                              <Link href={`/dashboard/${service.id}/data`}>
+                                <span>{service.name}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
