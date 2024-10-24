@@ -38,7 +38,7 @@ export default function AddService() {
       <DialogTrigger className="mx-8 my-8 w-[100px] h-[20px] text-white text-[10px] font-medium rounded-full bg-[#5C5C5C]">
         + New Project
       </DialogTrigger>
-      <DialogContent className="bg-white rounded-full sm:max-w-[425px]">
+      <DialogContent className="bg-white border-none rounded-full sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>프로젝트 만들기</DialogTitle>
         </DialogHeader>
