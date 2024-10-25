@@ -11,6 +11,10 @@ type DataViewProps = {
   conditions: Condition[];
 };
 
+function isDefinedArray(data: any[] | undefined): data is any[] {
+  return data !== undefined;
+}
+
 export default function DataView({
   endTime,
   dataInfo,
@@ -23,20 +27,139 @@ export default function DataView({
   useEffect(() => {
     const getFilteredData = async () => {
       setLoading(true);
-      const filteredData = await fetchFilteredLogData(
-        dataInfo.url,
-        dataInfo.headers,
-        dataInfo.metadata,
-        conditions
-      );
+      try {
+        const createdAtColumn = dataInfo.metadata.find(
+          (md) => md.description === "created_at"
+        );
+        if (!createdAtColumn) throw new Error("Column 'created_at' not exist.");
 
-      if (filteredData) {
+        const rawData = await fetchFilteredLogData(
+          dataInfo.url,
+          dataInfo.headers
+        );
+        if (!rawData) throw new Error("Raw data not exist.");
+
+        const host =
+          process.env.NEXT_PUBLIC_SITE_URL ||
+          process.env.NEXT_PUBLIC_VERCEL_URL;
+
+        const metadataFilterResponse = await fetch(
+          `${host}/api/metadata-filter`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              data: rawData,
+              metadatas: dataInfo.metadata,
+            }),
+          }
+        );
+
+        if (!metadataFilterResponse.ok)
+          throw new Error(metadataFilterResponse.status.toString());
+
+        const metadataFilterJson = await metadataFilterResponse.json();
+        let filteredData: any[] = metadataFilterJson.filteredData;
+
+        if (isDefinedArray(filteredData)) {
+          for (const condition of conditions) {
+            const stringFilterResponse = await fetch(
+              `${host}/api/string-filter`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  data: filteredData,
+                  condition: condition,
+                }),
+              }
+            );
+
+            if (!stringFilterResponse.ok)
+              throw new Error(stringFilterResponse.status.toString());
+
+            const stringFilterJson = await stringFilterResponse.json();
+            filteredData = stringFilterJson.filteredData;
+
+            const numberFilterResponse = await fetch(
+              `${host}/api/number-filter`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  data: filteredData,
+                  condition: condition,
+                }),
+              }
+            );
+
+            if (!numberFilterResponse.ok)
+              throw new Error(numberFilterResponse.status.toString());
+
+            const numberFilterJson = await numberFilterResponse.json();
+            filteredData = numberFilterJson.filteredData;
+
+            const booleanFilterResponse = await fetch(
+              `${host}/api/boolean-filter`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  data: filteredData,
+                  condition: condition,
+                }),
+              }
+            );
+
+            if (!booleanFilterResponse.ok)
+              throw new Error(booleanFilterResponse.status.toString());
+
+            const booleanFilterJson = await booleanFilterResponse.json();
+            filteredData = booleanFilterJson.filteredData;
+
+            const createdAtFilterResponse = await fetch(
+              `${host}/api/created-at-filter`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  data: filteredData,
+                  condition: condition,
+                }),
+              }
+            );
+
+            if (!createdAtFilterResponse.ok)
+              throw new Error(createdAtFilterResponse.status.toString());
+
+            const createdAtFilterJson = await createdAtFilterResponse.json();
+            filteredData = createdAtFilterJson.filteredData;
+          }
+        }
+        const sortedData = filteredData.sort((a, b) => {
+          return (
+            new Date(a["created_at"]).getTime() -
+            new Date(b["created_at"]).getTime()
+          );
+        });
         setError(null);
-        setData(filteredData);
-      } else {
+        setData(sortedData);
+      } catch (e) {
         setError("데이터를 불러오는데 실패했습니다.");
+        return;
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     const intervalId = setInterval(() => {

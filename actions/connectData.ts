@@ -31,9 +31,7 @@ export const fetchLogDataByMetadataForFilter = async (
 
 export const fetchFilteredLogData = async (
   url: string,
-  headerPairs: headerPair[],
-  metadatas: Metadata[],
-  conditions: Condition[]
+  headerPairs: headerPair[]
 ) => {
   const headers = getHeaders(headerPairs);
   try {
@@ -48,20 +46,7 @@ export const fetchFilteredLogData = async (
     const data: any[] | null = await response.json();
     if (!data) throw new Error("Log data not exist.");
 
-    const filteredData = filtering(data, metadatas, conditions);
-    const createdAtColumn = metadatas.find(
-      (metadata) => metadata.description === "created_at"
-    );
-    if (!createdAtColumn) throw new Error("Column 'created_at' not exist.");
-    const underCreatedAtData = filteredData.filter(
-      (d) => d[createdAtColumn.columnName]
-    );
-    return underCreatedAtData.sort((a, b) => {
-      return (
-        new Date(a["created_at"]).getTime() -
-        new Date(b["created_at"]).getTime()
-      );
-    });
+    return data;
   } catch (e) {
     console.error("[fetchFilteredLogData] Error:", e);
     return null;

@@ -29,7 +29,7 @@ export const filtering = (
   return data;
 };
 
-const metadataFilter = (data: any[], metadatas: Metadata[]) => {
+export const metadataFilter = (data: any[], metadatas: Metadata[]) => {
   const columns = metadatas.map((metadata) => metadata.columnName);
 
   return data.map((item) => {
@@ -43,7 +43,7 @@ const metadataFilter = (data: any[], metadatas: Metadata[]) => {
   });
 };
 
-const stringFilter = (data: any[], condition: Condition) => {
+export const stringFilter = (data: any[], condition: Condition) => {
   const filteredData = data.filter((d) => {
     if (
       condition.conditionType === "includedString" &&
@@ -74,7 +74,7 @@ const stringFilter = (data: any[], condition: Condition) => {
   return filteredData;
 };
 
-const numberFilter = (data: any[], condition: Condition) => {
+export const numberFilter = (data: any[], condition: Condition) => {
   const filteredData = data.filter((d) => {
     if (
       condition.conditionType === "equalConditionValue" &&
@@ -113,7 +113,7 @@ const numberFilter = (data: any[], condition: Condition) => {
   return filteredData;
 };
 
-const booleanFilter = (data: any[], condition: Condition) => {
+export const booleanFilter = (data: any[], condition: Condition) => {
   const filteredData = data.filter((d) => {
     if (
       condition.conditionType === "booleanConditionValue" &&
@@ -126,7 +126,7 @@ const booleanFilter = (data: any[], condition: Condition) => {
   return filteredData;
 };
 
-const createdAtFilter = (data: any[], condition: Condition) => {
+export const createdAtFilter = (data: any[], condition: Condition) => {
   const filteredData = data.filter((d) => {
     if (condition.conditionType === "createdAtConditionValue") {
       const createdAtConditionValue = condition.conditionValue;
