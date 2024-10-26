@@ -1,6 +1,6 @@
 "use client";
 
-import { signOutAction } from "@/actions/auth";
+import { signOut } from "next-auth/react";
 import DLabLogoReversed from "./icons/DLabLogoReversed";
 import {
   DropdownMenu,
@@ -15,8 +15,8 @@ import { SidebarTrigger } from "./ui/sidebar";
 import Link from "next/link";
 
 type NavbarProps = {
-  userName: string | undefined;
-  userEmail: string | undefined;
+  userName: string | undefined | null;
+  userEmail: string | undefined | null;
 };
 
 export default function Navbar({ userEmail, userName }: NavbarProps) {
@@ -28,10 +28,6 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
   } else if (!userEmail && userName) {
     userInfo = userName;
   }
-
-  const handleLogout = async () => {
-    await signOutAction();
-  };
 
   return (
     <nav className="sticky top-0 left-0 z-50 bg-white w-full h-[50px] border-b-[1px] border-[#A1A1A1] flex flex-row justify-between items-center">
@@ -54,7 +50,9 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
             계정
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>로그아웃</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => signOut()}>
+            로그아웃
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </nav>
