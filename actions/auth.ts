@@ -1,11 +1,9 @@
 "use server";
 
 import { supabaseClient } from "@/lib/getSupabaseClient";
-import { createClient } from "@/utils/supabase/server";
 import { Signin } from "@/utils/types";
-import { redirect } from "next/navigation";
 
-export const verifyRegisteredUser = async (
+export const verifyRegisteredMember = async (
   email: string | undefined | null
 ) => {
   try {
@@ -24,13 +22,7 @@ export const verifyRegisteredUser = async (
     }
     return false;
   } catch (e) {
-    console.error("[verifyRegisteredUser]", e);
+    console.error("[verifyRegisteredMember]", e);
     return false;
   }
-};
-
-export const signOutAction = async () => {
-  const supabase = createClient();
-  await supabase.auth.signOut();
-  return redirect("/login");
 };

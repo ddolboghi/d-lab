@@ -1,16 +1,6 @@
-import LogoutButton from "@/components/auth/LogoutButton";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { LogoutButton } from "@/components/auth/LogoutButton";
 
 export default async function page() {
-  const {
-    data: { user },
-  } = await createClient().auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
   return (
     <main className="w-full h-screen flex flex-col items-center justify-center">
       <p>등록되지 않은 유저입니다.</p>
