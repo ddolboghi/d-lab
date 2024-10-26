@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { supabaseClient } from "./lib/getSupabaseClient";
 import { Member } from "./utils/types";
-import { verifyRegisteredMember } from "./actions/auth";
+import { verifyRegisteredMember } from "./actions/verify";
 
 export const {
   handlers: { GET, POST },

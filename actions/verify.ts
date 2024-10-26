@@ -10,7 +10,7 @@ export const verifyRegisteredMember = async (
     if (!email) throw new Error("Not logged in user.");
 
     const { data, error } = await supabaseClient
-      .from("signin")
+      .from("verification")
       .select("password")
       .eq("email", email)
       .single<Signin>();
