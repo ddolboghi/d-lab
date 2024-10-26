@@ -1,51 +1,38 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/utils/supabase/middleware";
-import { createClient } from "./utils/supabase/server";
-import { verifyRegisteredUser } from "./actions/auth";
+import { auth } from "@/auth";
 
-export async function middleware(request: NextRequest) {
-  const response = await updateSession(request);
-  const { pathname } = request.nextUrl;
-
-  const {
-    data: { user },
-  } = await createClient().auth.getUser();
-  // console.log("유저 정보 middleware: ", user);
+export default auth((req) => {
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.auth;
 
   const protectedRoutes = ["/dashboard"];
-
-  const isLoggedIn = user !== null;
-
-  if (protectedRoutes.some((route) => pathname.startsWith(route))) {
+  if (protectedRoutes.some((route) => nextUrl.pathname.startsWith(route))) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return Response.redirect(new URL("/login", nextUrl));
     }
-    const isRegisteredUser = await verifyRegisteredUser(user?.email);
-    if (!isRegisteredUser) {
-      return NextResponse.redirect(new URL("/logout", request.url));
+
+    if (isLoggedIn && req.auth?.user?.isRegistered === false) {
+      return Response.redirect(new URL("/not-register", nextUrl));
     }
   }
 
-  if (pathname.startsWith("/logout")) {
-    const isRegisteredUser = await verifyRegisteredUser(user?.email);
-    if (isRegisteredUser) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+  const authRoutes = ["/login"];
+  if (authRoutes.some((route) => nextUrl.pathname.startsWith(route))) {
+    if (isLoggedIn) {
+      return Response.redirect(new URL("/dashboard", nextUrl));
     }
   }
 
-  return NextResponse.next();
-}
+  const notVerifiedRoutes = ["/not-register"];
+  if (notVerifiedRoutes.some((route) => nextUrl.pathname.startsWith(route))) {
+    if (!isLoggedIn) {
+      return Response.redirect(new URL("/login", nextUrl));
+    }
+    if (isLoggedIn && req.auth?.user?.isRegistered === true) {
+      return Response.redirect(new URL("/dashboard", nextUrl));
+    }
+  }
+});
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     * Feel free to modify this pattern to include more paths.
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
