@@ -1,17 +1,19 @@
-"use client";
+import { signOut } from "@/auth";
 
-import { signOutAction } from "@/actions/auth";
-
-export default function LogoutButton() {
-  const handleLogout = async () => {
-    await signOutAction();
-  };
+export function LogoutButton() {
   return (
-    <button
-      onClick={handleLogout}
-      className="bg-white border-2 border-gray-200 w-[280px] h-[60px] rounded-full text-lg"
+    <form
+      action={async () => {
+        "use server";
+        await signOut({ redirectTo: "/login" });
+      }}
     >
-      로그아웃
-    </button>
+      <button
+        type="submit"
+        className="bg-white border-2 border-gray-200 w-[280px] h-[60px] rounded-full text-lg"
+      >
+        로그아웃
+      </button>
+    </form>
   );
 }
