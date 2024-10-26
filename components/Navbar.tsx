@@ -30,7 +30,7 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
   }
 
   return (
-    <nav className="sticky top-0 left-0 z-50 bg-white w-full h-[50px] border-b-[1px] border-[#A1A1A1] flex flex-row justify-between items-center">
+    <nav className="sticky top-0 left-0 z-0 bg-white w-full h-[50px] border-b-[1px] border-[#A1A1A1] flex flex-row justify-between items-center">
       <SidebarTrigger className="bg-white" />
       <Link href="/dashboard" className="flex flex-row items-center">
         <DLabLogoReversed />
