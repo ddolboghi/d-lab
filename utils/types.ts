@@ -117,3 +117,10 @@ export type CreatedAtCondition = {
 export interface Signin {
   password: string;
 }
+
+/* member */
+export type Member = {
+  member_id: string;
+  email: string;
+  name: string;
+};
