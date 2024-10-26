@@ -12,7 +12,7 @@ export default async function ExperimentList({
 }: ExperimentListProps) {
   const experiments = await selectExperimentsByServiceId(serviceId);
   return (
-    <div className="max-h-[450px] min-h-0 overflow-auto scrollbar-hidden">
+    <div className="max-h-[450px] min-h-0 overflow-auto scrollbar-custom">
       {experiments ? (
         <ul className="flex flex-col gap-2">
           {experiments.map((experiment) => (
