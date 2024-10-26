@@ -105,18 +105,18 @@ export default function NumberFilter({
   };
 
   return (
-    <div>
+    <div className="flex flex-col justify-between items-start gap-2 p-2 text-[12px]">
       <div>
         <button
           onClick={handleShowEqualCondition}
-          className={`${showEqualCondition ? "bg-gray-400" : "bg-blue-400"} text-white p-2`}
+          className={`${showEqualCondition ? "bg-gray-200 text-[#878787]" : "bg-green-400 text-white"} py-1 px-2 rounded-l-[10px]`}
           disabled={!showEqualCondition}
         >
           범위 조건
         </button>
         <button
           onClick={handleShowEqualCondition}
-          className={`${showEqualCondition ? "bg-blue-400" : "bg-gray-400"} text-white p-2`}
+          className={`${showEqualCondition ? "bg-green-400 text-white" : "bg-gray-200 text-[#878787]"} py-1 px-2 rounded-r-[10px]`}
           disabled={showEqualCondition}
         >
           동등 조건
@@ -135,7 +135,7 @@ export default function NumberFilter({
                 : equalCondition.conditionValue
             }
             onChange={(e) => handleEqualConditionValue(e.target.value)}
-            className="border border-gray-300 rounded p-1 mx-2"
+            className="border border-gray-300 w-1/2 rounded p-1"
           />
         </div>
       ) : (
@@ -150,9 +150,9 @@ export default function NumberFilter({
                 : rangeCondition.conditionValue.under
             }
             onChange={(e) => handleUnderConditionValue(e.target.value)}
-            className="border border-gray-300 rounded p-1 mx-2"
+            className="text-[12px] border border-gray-300 w-1/3 rounded p-1"
           />
-          <span>이상</span>
+          <span className="pr-2">이상</span>
           <input
             type="number"
             pattern="\d*"
@@ -162,7 +162,7 @@ export default function NumberFilter({
                 : rangeCondition.conditionValue.over
             }
             onChange={(e) => handleOverConditionValue(e.target.value)}
-            className="border border-gray-300 rounded p-1 mx-2"
+            className="text-[12px] border border-gray-300 w-1/3 rounded p-1"
           />
           <span>이하</span>
         </div>

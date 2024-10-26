@@ -159,23 +159,23 @@ export default function MetadataFilter({
     );
   }
   return (
-    <div>
-      <div>
+    <div className="flex flex-col justify-between items-start gap-2 p-2">
+      <div className="text-[12px]">
         <button
           onClick={handleShowOptions}
-          className={`${showOptions ? "bg-gray-400" : "bg-blue-400"} text-white p-2`}
+          className={`${showOptions ? "bg-gray-200 text-[#878787]" : "bg-green-400 text-white"} py-1 px-2 rounded-l-[10px]`}
           disabled={!showOptions}
         >
           포함된 문자
         </button>
         <button
           onClick={handleShowOptions}
-          className={`${showOptions ? "bg-blue-400" : "bg-gray-400"} text-white p-2`}
+          className={`${showOptions ? "bg-green-400 text-white" : "bg-gray-200 text-[#878787]"} py-1 px-2 rounded-r-[10px]`}
           disabled={showOptions}
         >
           문자 선택
         </button>
-        <label>
+        <label className="pl-2">
           <input
             type="checkbox"
             checked={isNotCondition}
@@ -185,7 +185,7 @@ export default function MetadataFilter({
         </label>
       </div>
       {showOptions ? (
-        <div className="max-h-60 overflow-y-auto border border-gray-300 p-2">
+        <div className="text-[12px] max-h-[120px] w-full border border-gray-300 p-2 overflow-auto scrollbar-custom">
           {filterOptions.map((filterOption, idx) => (
             <div key={`${metadata.columnName}-${idx}`}>
               <label>
@@ -208,7 +208,7 @@ export default function MetadataFilter({
               ? includedCondition.conditionValue
               : ""
           }
-          className="border border-gray-300 rounded p-1 mx-2"
+          className="border border-gray-300 rounded p-1 text-[12px]"
           onChange={(e) => handleIncludedString(e.target.value)}
         />
       )}

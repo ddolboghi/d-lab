@@ -40,21 +40,25 @@ export default function CreatedAtFilter({
   };
 
   return (
-    <div>
-      <input
-        type="datetime-local"
-        name="endTime"
-        className="border border-gray-300 rounded p-1 mx-2"
-        onChange={(e) => handleCreatedAtCondition(true, e.target.value)}
-      />
-      <span>이상</span>
-      <input
-        type="datetime-local"
-        name="endTime"
-        className="border border-gray-300 rounded p-1 mx-2"
-        onChange={(e) => handleCreatedAtCondition(false, e.target.value)}
-      />
-      <span>이하</span>
+    <div className="flex flex-col justify-between items-start gap-2 p-2 text-[12px]">
+      <div>
+        <input
+          type="datetime-local"
+          name="endTime"
+          className="border border-gray-300 rounded p-1 mr-2"
+          onChange={(e) => handleCreatedAtCondition(true, e.target.value)}
+        />
+        <span>이상</span>
+      </div>
+      <div>
+        <input
+          type="datetime-local"
+          name="endTime"
+          className="border border-gray-300 rounded p-1 mr-2"
+          onChange={(e) => handleCreatedAtCondition(false, e.target.value)}
+        />
+        <span>이하</span>
+      </div>
     </div>
   );
 }
