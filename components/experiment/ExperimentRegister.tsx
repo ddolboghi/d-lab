@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import DataSelectSection from "./DataSelectSection";
 
 type AddExperimentProps = {
   serviceId: number;
@@ -48,7 +49,7 @@ export default function ExperimentRegister({ serviceId }: AddExperimentProps) {
     getServiceDatas();
   }, []);
 
-  const handledataChange = (isExperimentData: boolean, value: string) => {
+  const handleDataChange = (isExperimentData: boolean, value: string) => {
     if (serviceDatas) {
       const selectedData = serviceDatas.filter(
         (data) => data.id === Number(value)
@@ -220,105 +221,85 @@ export default function ExperimentRegister({ serviceId }: AddExperimentProps) {
       <DialogTrigger className="bg-[#E4E4E4] text-[#2D2D2D] text-[12px] p-2 my-2 w-full h-[30px] rounded-full text-center font-medium leading-none">
         +실험 추가
       </DialogTrigger>
-      <DialogContent className="bg-white border-none rounded-[15px] sm:max-w-[825px] max-h-[600px] overflow-auto">
+      <DialogContent className="bg-white border-none sm:max-w-[825px] rounded-[15px] max-h-[600px] overflow-auto">
         <DialogHeader>
-          <DialogTitle className="text-left text-[#272727] text-[26px] font-semibold font-['Pretendard Variable'] leading-[53.36px]">
+          <DialogTitle className="text-left text-[##282828] text-[26px] font-semibold font-['Pretendard Variable'] leading-[53.36px]">
             실험 만들기
           </DialogTitle>
         </DialogHeader>
-        <form action={addExperimet}>
-          <section className="flex flex-col items-start">
-            <label htmlFor="title">실험명</label>
+        <form action={addExperimet} className="flex flex-col gap-[20px]">
+          <section className="flex flex-col items-start gap-[8px]">
+            <label htmlFor="title" className="text-[#4E4E4E]">
+              실험명
+            </label>
             <input
               type="text"
               name="title"
               placeholder="실험명을 입력하세요."
               required
-              className="text-[12px] border border-[#E3E3E3] rounded-[5px] py-1 px-4 w-full placeholder:text-[12px]"
+              className="text-[12px] border border-[#E3E3E3] rounded-[5px] py-2 px-4 w-full placeholder:text-[12px]"
             />
           </section>
-          <section className="flex flex-col items-start">
-            <label htmlFor="overview">설명</label>
+          <section className="flex flex-col items-start gap-[8px]">
+            <label htmlFor="overview" className="text-[#4E4E4E]">
+              설명
+            </label>
             <textarea
               name="overview"
               placeholder="설명을 입력하세요."
-              className="text-[12px] border border-[#E3E3E3] rounded-[5px] py-1 px-4 w-full placeholder:text-[12px]"
+              className="text-[12px] border border-[#E3E3E3] rounded-[5px] py-2 px-4 w-full placeholder:text-[12px]"
             />
           </section>
-          <section className="flex flex-col items-start">
-            <label htmlFor="endTime">실험 종료 시간</label>
+          <section className="flex flex-col items-start gap-[8px]">
+            <label htmlFor="endTime" className="text-[#4E4E4E]">
+              실험 종료 시간
+            </label>
             <input
               type="datetime-local"
               name="endTime"
-              className="text-[12px] border border-[#E3E3E3] rounded-[5px] py-1 px-4 w-1/4 placeholder:text-[12px]"
+              className="text-[12px] border border-[#E3E3E3] rounded-[5px] py-2 px-4 w-1/4 placeholder:text-[12px]"
             />
           </section>
-          <section className="flex flex-col items-start">
-            <label htmlFor="experimentalDataId">
-              실험하고 싶은 대상을 선택해주세요.
+          <DataSelectSection
+            label="실험하고 싶은 대상을 선택해주세요."
+            formName="experimentalDataId"
+            dataInfo={experimentalDataInfo}
+            serviceDatas={serviceDatas}
+            handleDataChange={handleDataChange}
+            handleCondition={handleCondition}
+          />
+          <DataSelectSection
+            label="비교하고 싶은 대상을 선택해주세요."
+            formName="controlDataId"
+            dataInfo={controlDataInfo}
+            serviceDatas={serviceDatas}
+            handleDataChange={handleDataChange}
+            handleCondition={handleCondition}
+          />
+          <section className="flex flex-col items-start gap-[8px]">
+            <label htmlFor="goal" className="text-[#4E4E4E]">
+              실험하고 싶은 데이터의 목표 수치를 입력해주세요.
             </label>
-            <select
-              name="experimentalDataId"
-              value={experimentalDataInfo?.id}
-              onChange={(e) => handledataChange(true, e.target.value)}
-            >
-              <option value="">선택 안함</option>
-              {serviceDatas &&
-                serviceDatas.map((data) => (
-                  <option key={data.id} value={data.id}>
-                    {data.title}
-                  </option>
-                ))}
-            </select>
-            {experimentalDataInfo && (
-              <MetadataTable
-                dataInfo={experimentalDataInfo}
-                handleCondition={handleCondition}
+            <div className="w-full">
+              <input
+                type="number"
+                pattern="\d*"
+                name="goal"
+                placeholder="직접 입력"
+                className="text-[12px] border border-[#E3E3E3] rounded-[5px] py-2 pl-4 pr-2 w-1/4 placeholder:text-[12px]"
               />
-            )}
+              <span className="pl-1">%</span>
+            </div>
           </section>
-          <section className="flex flex-col items-start">
-            <label htmlFor="controlDataId">
-              비교하고 싶은 대상을 선택해주세요.
-            </label>
-            <select
-              name="controlDataId"
-              value={controlDataInfo?.id}
-              onChange={(e) => handledataChange(false, e.target.value)}
+          <div className="w-full flex flex-col items-end">
+            <button
+              type="submit"
+              className="bg-green-400 text-white px-[26px] py-2 rounded-full"
             >
-              <option value="">선택 안함</option>
-              {serviceDatas &&
-                serviceDatas.map((data) => (
-                  <option key={data.id} value={data.id}>
-                    {data.title}
-                  </option>
-                ))}
-            </select>
-            {controlDataInfo && (
-              <MetadataTable
-                dataInfo={controlDataInfo}
-                isControl={true}
-                handleCondition={handleCondition}
-              />
-            )}
-          </section>
-          <label htmlFor="goal">
-            실험하고 싶은 데이터의 목표 수치를 입력해주세요.
-          </label>
-          <section className="flex items-start">
-            <input
-              type="number"
-              pattern="\d*"
-              name="goal"
-              placeholder="직접 입력"
-              className="text-[12px] border border-[#E3E3E3] rounded-[5px] py-1 px-4 w-1/4 placeholder:text-[12px]"
-            />
-            %
-          </section>
-          <button type="submit" className="bg-green-400 text-white p-2">
-            실험 시작
-          </button>
-          {isError && <p className="text-red-400">실험 생성 실패</p>}
+              실험 시작
+            </button>
+            {isError && <p className="text-red-400">실험 생성 실패</p>}
+          </div>
         </form>
       </DialogContent>
     </Dialog>
