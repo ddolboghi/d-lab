@@ -14,6 +14,7 @@ import { MAX_SERVICE_NAME } from "@/utils/constant";
 export default function AddService() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -29,12 +30,13 @@ export default function AddService() {
       setError("저장에 실패했습니다.");
     } else {
       setError(null);
+      setShowForm(!response);
     }
     setIsLoading(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={showForm} onOpenChange={setShowForm}>
       <DialogTrigger className="mx-8 my-8 w-[100px] h-[20px] text-white text-[10px] font-medium rounded-full bg-[#5C5C5C]">
         + New Project
       </DialogTrigger>
