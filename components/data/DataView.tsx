@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchFilteredLogData } from "@/actions/connectData";
+import { dataFilteringFetch } from "@/lib/dataFilteringFetch";
 import { stringToUTC } from "@/lib/dateTranslator";
 import { Condition, DataInfoForConenct } from "@/utils/types";
 import { useEffect, useState } from "react";
@@ -27,139 +28,29 @@ export default function DataView({
   useEffect(() => {
     const getFilteredData = async () => {
       setLoading(true);
-      try {
-        const createdAtColumn = dataInfo.metadata.find(
-          (md) => md.description === "created_at"
-        );
-        if (!createdAtColumn) throw new Error("Column 'created_at' not exist.");
+      const createdAtColumn = dataInfo.metadata.find(
+        (md) => md.description === "created_at"
+      );
+      if (!createdAtColumn) throw new Error("Column 'created_at' not exist.");
 
-        const rawData = await fetchFilteredLogData(
-          dataInfo.url,
-          dataInfo.headers
-        );
-        if (!rawData) throw new Error("Raw data not exist.");
+      const rawData = await fetchFilteredLogData(
+        dataInfo.url,
+        dataInfo.headers
+      );
 
-        const host =
-          process.env.NEXT_PUBLIC_SITE_URL ||
-          process.env.NEXT_PUBLIC_VERCEL_URL;
+      const filteredData = await dataFilteringFetch(
+        rawData,
+        dataInfo.metadata,
+        conditions
+      );
 
-        const metadataFilterResponse = await fetch(
-          `${host}/api/metadata-filter`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              data: rawData,
-              metadatas: dataInfo.metadata,
-            }),
-          }
-        );
-
-        if (!metadataFilterResponse.ok)
-          throw new Error(metadataFilterResponse.status.toString());
-
-        const metadataFilterJson = await metadataFilterResponse.json();
-        let filteredData: any[] = metadataFilterJson.filteredData;
-
-        if (isDefinedArray(filteredData)) {
-          for (const condition of conditions) {
-            const stringFilterResponse = await fetch(
-              `${host}/api/string-filter`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  data: filteredData,
-                  condition: condition,
-                }),
-              }
-            );
-
-            if (!stringFilterResponse.ok)
-              throw new Error(stringFilterResponse.status.toString());
-
-            const stringFilterJson = await stringFilterResponse.json();
-            filteredData = stringFilterJson.filteredData;
-
-            const numberFilterResponse = await fetch(
-              `${host}/api/number-filter`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  data: filteredData,
-                  condition: condition,
-                }),
-              }
-            );
-
-            if (!numberFilterResponse.ok)
-              throw new Error(numberFilterResponse.status.toString());
-
-            const numberFilterJson = await numberFilterResponse.json();
-            filteredData = numberFilterJson.filteredData;
-
-            const booleanFilterResponse = await fetch(
-              `${host}/api/boolean-filter`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  data: filteredData,
-                  condition: condition,
-                }),
-              }
-            );
-
-            if (!booleanFilterResponse.ok)
-              throw new Error(booleanFilterResponse.status.toString());
-
-            const booleanFilterJson = await booleanFilterResponse.json();
-            filteredData = booleanFilterJson.filteredData;
-
-            const createdAtFilterResponse = await fetch(
-              `${host}/api/created-at-filter`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  data: filteredData,
-                  condition: condition,
-                }),
-              }
-            );
-
-            if (!createdAtFilterResponse.ok)
-              throw new Error(createdAtFilterResponse.status.toString());
-
-            const createdAtFilterJson = await createdAtFilterResponse.json();
-            filteredData = createdAtFilterJson.filteredData;
-          }
-        }
-        const sortedData = filteredData.sort((a, b) => {
-          return (
-            new Date(a["created_at"]).getTime() -
-            new Date(b["created_at"]).getTime()
-          );
-        });
-        setError(null);
-        setData(sortedData);
-      } catch (e) {
+      if (!filteredData) {
         setError("데이터를 불러오는데 실패했습니다.");
-        return;
-      } finally {
-        setLoading(false);
+      } else {
+        setError(null);
+        setData(filteredData);
       }
+      setLoading(false);
     };
 
     const intervalId = setInterval(() => {
