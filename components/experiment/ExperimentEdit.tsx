@@ -44,7 +44,7 @@ export default function ExperimentEdit({
       const response = await deleteExperimentById(editContent.id);
       setIsError(!response);
       if (response) {
-        router.replace(`/dashboard/${serviceId}`);
+        router.replace("/dashboard");
       }
     }
   };
