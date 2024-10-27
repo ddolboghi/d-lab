@@ -11,7 +11,7 @@ export default async function page({
   const registeredDatas = await selectDataInfoByServiceId(Number(serviceId));
   return (
     <main>
-      <table className="border-collapse border border-black">
+      <table className="border border-black">
         <thead>
           <tr>
             <th className="border border-black p-2 w-[120px]">데이터 명</th>
