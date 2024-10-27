@@ -1,7 +1,6 @@
 "use client";
 
 import { deleteServiceById, updateServiceById } from "@/actions/service";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -27,6 +26,7 @@ type ServiceInfoProps = {
 
 export default function ServiceInfo({ service }: ServiceInfoProps) {
   const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   const handleEdit = async (formData: FormData) => {
     const inputName = formData.get("name") as string;
@@ -37,6 +37,8 @@ export default function ServiceInfo({ service }: ServiceInfoProps) {
     const response = await updateServiceById(service.id, formData);
     if (!response) {
       setError("수정에 실패했습니다.");
+    } else {
+      setShowForm(!response);
     }
   };
 
@@ -59,7 +61,7 @@ export default function ServiceInfo({ service }: ServiceInfoProps) {
             <Ellipsis />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-white border-none rounded-[6px]">
-            <Dialog>
+            <Dialog open={showForm} onOpenChange={setShowForm}>
               <DialogTrigger className="text-[14px] p-2 w-full text-left">
                 편집
               </DialogTrigger>
