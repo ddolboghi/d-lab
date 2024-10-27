@@ -188,7 +188,7 @@ export default function MetadataFilter({
         <div className="text-[12px] max-h-[120px] w-full border border-gray-300 p-2 overflow-auto scrollbar-custom">
           {filterOptions.map((filterOption, idx) => (
             <div key={`${metadata.columnName}-${idx}`}>
-              <label>
+              <label className="flex items-center">
                 <input
                   type="checkbox"
                   value={filterOption}
