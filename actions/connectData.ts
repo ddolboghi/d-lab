@@ -55,10 +55,7 @@ export const fetchFilteredLogData = async (
 
 export const fetchLogDataUnderEndTime = async (
   url: string,
-  headerPairs: headerPair[],
-  metadatas: Metadata[],
-  conditions: Condition[],
-  utcEndTime: Date
+  headerPairs: headerPair[]
 ) => {
   const headers = getHeaders(headerPairs);
   try {
@@ -72,13 +69,7 @@ export const fetchLogDataUnderEndTime = async (
 
     const data: any[] | null = await response.json();
     if (!data) throw new Error("Log data not exist.");
-
-    const filteredData = filtering(data, metadatas, conditions);
-    const createdAtColumn = metadatas.find(
-      (metadata) => metadata.description === "created_at"
-    );
-    if (!createdAtColumn) throw new Error("Column 'created_at' not exist.");
-    return filteredData.filter((d) => d[createdAtColumn.columnName]);
+    return data;
   } catch (e) {
     console.error("[fetchLogDataUnderEndTime] Error:", e);
     return null;

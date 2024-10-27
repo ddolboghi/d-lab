@@ -2,6 +2,7 @@
 
 import { fetchLogDataUnderEndTime } from "@/actions/connectData";
 import { selectConclusionById, updateConclusion } from "@/actions/experiment";
+import { dataFilteringFetch } from "@/lib/dataFilteringFetch";
 import { stringToUTC } from "@/lib/dateTranslator";
 import {
   Conclusion,
@@ -33,19 +34,24 @@ export default function ExperimentConclusion({
       if (savedConclusion !== null) {
         setConclusion(savedConclusion);
       } else if (savedConclusion === null && endTime !== null) {
-        const experimentFilteredData = await fetchLogDataUnderEndTime(
+        const experimentData = await fetchLogDataUnderEndTime(
           experimentalDataInfo.url,
-          experimentalDataInfo.headers,
-          experimentalDataInfo.metadata,
-          experiment.experimental_data_conditions,
-          endTime
+          experimentalDataInfo.headers
         );
-        const controlFilteredData = await fetchLogDataUnderEndTime(
+        const controlData = await fetchLogDataUnderEndTime(
           controlDataInfo.url,
-          controlDataInfo.headers,
+          controlDataInfo.headers
+        );
+
+        const experimentFilteredData = await dataFilteringFetch(
+          experimentData,
+          experimentalDataInfo.metadata,
+          experiment.experimental_data_conditions
+        );
+        const controlFilteredData = await dataFilteringFetch(
+          controlData,
           controlDataInfo.metadata,
-          experiment.control_data_conditions,
-          endTime
+          experiment.control_data_conditions
         );
 
         const controlValue = controlFilteredData
@@ -78,7 +84,10 @@ export default function ExperimentConclusion({
         }
       }
     };
-    calculateConclusion();
+
+    if (!experiment.conclusion) {
+      calculateConclusion();
+    }
   }, []);
 
   return (
