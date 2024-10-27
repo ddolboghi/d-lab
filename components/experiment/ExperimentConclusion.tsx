@@ -10,6 +10,7 @@ import {
   ExperimentForRead,
 } from "@/utils/types";
 import { useEffect, useState } from "react";
+import ProgressCircle from "../ProgressCircle";
 
 type ExperimentConclusionProps = {
   experimentalDataInfo: DataInfoForConenct;
@@ -85,22 +86,47 @@ export default function ExperimentConclusion({
       }
     };
 
-    if (!experiment.conclusion) {
-      calculateConclusion();
-    }
+    //conclusion이 존재하지 않거나, 목표 수치를 수정했을때만 호출되야함
+    calculateConclusion();
   }, []);
 
   return (
-    <div>
-      <p>목표 수치: {experiment.goal}%</p>
-      {conclusion ? (
-        <div>
-          {conclusion.actual && <p>실제 수치: {conclusion.actual}%</p>}
-          <p>{conclusion?.result ? "참" : "거짓"}</p>
+    <div className="grid grid-cols-3 items-center justify-center text-center px-[90px]">
+      <div className="shrink-0 flex flex-row gap-8 items-center justify-center">
+        <p className="font-medium">목표 수치</p>
+        <ProgressCircle
+          percentage={experiment.goal}
+          foregroundColor="#979797"
+          size={100}
+          thickness={12}
+          textColor="#525252"
+        />
+      </div>
+      {conclusion && conclusion.actual && (
+        <div className="shrink-0 flex flex-row gap-8 items-center justify-center">
+          <p className="font-medium">실제 수치</p>
+          <ProgressCircle
+            percentage={conclusion.actual}
+            size={100}
+            thickness={12}
+            textColor="#525252"
+          />
         </div>
-      ) : (
-        <p>실험 진행 중...</p>
       )}
+      {conclusion && (
+        <div className="shrink-0 flex flex-row gap-8 items-center justify-center">
+          <p className="font-medium">결론</p>
+          <div className="flex flex-col items-center justify-center w-[100px] h-[100px] rounded-full bg-[#6C6C6C] text-center ">
+            <span className="font-extrabold text-[23px] text-white opacity-80">
+              {conclusion.result ? "참" : "거짓"}
+            </span>
+            <span className="text-[13px] text-white opacity-80">
+              {conclusion.result ? "True" : "False"}
+            </span>
+          </div>
+        </div>
+      )}
+      {!conclusion && <p>실험 진행 중... 로딩 컴포넌트</p>}
     </div>
   );
 }
