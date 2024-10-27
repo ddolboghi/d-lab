@@ -98,7 +98,11 @@ export default function ServiceInfo({ service }: ServiceInfoProps) {
               </DialogContent>
             </Dialog>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleDelete}>삭제</DropdownMenuItem>
+            <DropdownMenuItem>
+              <button onClick={handleDelete} className="w-full text-left">
+                삭제
+              </button>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
