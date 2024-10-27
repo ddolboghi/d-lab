@@ -217,7 +217,7 @@ export default function ExperimentRegister({ serviceId }: AddExperimentProps) {
   };
 
   return (
-    <Dialog>
+    <Dialog open={showForm} onOpenChange={setShowForm}>
       <DialogTrigger className="bg-[#E4E4E4] text-[#2D2D2D] text-[12px] p-2 my-2 w-full h-[30px] rounded-full text-center font-medium leading-none">
         +실험 추가
       </DialogTrigger>
