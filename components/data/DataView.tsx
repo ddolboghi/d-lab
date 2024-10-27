@@ -5,16 +5,14 @@ import { dataFilteringFetch } from "@/lib/dataFilteringFetch";
 import { stringToUTC } from "@/lib/dateTranslator";
 import { Condition, DataInfoForConenct } from "@/utils/types";
 import { useEffect, useState } from "react";
+import ConditionView from "../experiment/ConditionView";
+import { LoaderCircle } from "lucide-react";
 
 type DataViewProps = {
   endTime: string | null;
   dataInfo: DataInfoForConenct;
   conditions: Condition[];
 };
-
-function isDefinedArray(data: any[] | undefined): data is any[] {
-  return data !== undefined;
-}
 
 export default function DataView({
   endTime,
@@ -69,10 +67,12 @@ export default function DataView({
   }, []);
 
   return (
-    <div className="flex flex-col">
-      {loading && <span>로딩 중...</span>}
-      {error && <p className="text-red-400">{error}</p>}
-      <table className="text-center">
+    <div>
+      <div className="absolute flex flex-row items-center gap-2 -translate-y-[22px] translate-x-[110px]">
+        {loading && <LoaderCircle className="animate-spin w-4" />}
+        {error && <p className="text-red-400">{error}</p>}
+      </div>
+      <table className="text-center w-full">
         <thead>
           <tr>
             <th className="border border-black p-2 w-1/4">필터링 조건</th>
@@ -83,9 +83,11 @@ export default function DataView({
           <tr>
             <td className="border border-black p-2 w-1/4">
               {conditions.map((condition, idx) => (
-                <div key={`condition-${idx}`} className="flex flex-row">
-                  <p>{condition.columnName}</p>
-                  <p>{JSON.stringify(condition.conditionValue)}</p>
+                <div
+                  key={`condition-${idx}`}
+                  className="flex flex-row text-[14px]"
+                >
+                  <ConditionView condition={condition} />
                 </div>
               ))}
             </td>
