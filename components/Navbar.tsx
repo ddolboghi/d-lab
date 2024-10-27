@@ -34,24 +34,27 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
       <SidebarTrigger className="bg-white" />
       <Link href="/dashboard" className="flex flex-row items-center">
         <DLabLogoReversed />
-        <h1 className="">D-Lab</h1>
+        <h1 className="text-[#5A5A5A] font-bold">D-Lab</h1>
       </Link>
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex flex-row gap-2 items-center">
-          <div className="flex flex-row items-center text-[12px] text-left">
-            {userEmail ?? ""}
-            <br />
-            {userName ?? ""}
-          </div>
-          <ChevronDown className="w-[13px] h-6" />
+        <DropdownMenuTrigger asChild>
+          <button className="flex flex-row items-center gap-2 text-[12px] text-left">
+            <div>
+              <p className="text-[#5A5A5A] font-normal">{userEmail ?? ""}</p>
+              <p className="text-[#2F2F2F] font-semibold">{userName ?? ""}</p>
+            </div>
+            <ChevronDown className="w-[13px] h-6 border-[#6C6C6C]" />
+          </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="bg-white border-none rounded-[6px]">
           <DropdownMenuLabel className="text-[#878787] text-[12px]">
             계정
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => signOut()}>
-            로그아웃
+          <DropdownMenuItem>
+            <button onClick={() => signOut()} className="w-full text-left">
+              로그아웃
+            </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
