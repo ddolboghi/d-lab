@@ -1,3 +1,4 @@
+import { selectServiceById } from "@/actions/service";
 import { selectDataInfoByServiceId } from "@/actions/serviceData";
 import DataInfoAdd from "@/components/data/DataInfoAdd";
 
@@ -7,9 +8,13 @@ export default async function page({
   params: { serviceId: string };
 }) {
   const serviceId = params.serviceId;
+  const service = await selectServiceById(Number(serviceId));
   const registeredDatas = await selectDataInfoByServiceId(Number(serviceId));
   return (
     <main>
+      <h1 className="font-bold text-[22px] pl-8 py-[20px]">
+        {service ? service.name : "제목 없는 프로젝트"}
+      </h1>
       <table className="border border-black">
         <thead>
           <tr>
