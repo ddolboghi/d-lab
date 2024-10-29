@@ -1,6 +1,5 @@
 import { selectDataInfoByServiceId } from "@/actions/serviceData";
-import DataInfoEdit from "@/components/data/DataInfoEdit";
-import DataInfoRegister from "@/components/data/DataInfoRegister";
+import DataInfoAdd from "@/components/data/DataInfoAdd";
 
 export default async function page({
   params,
@@ -31,11 +30,11 @@ export default async function page({
             <th className="border border-black p-2 w-[120px]">편집</th>
           </tr>
         </thead>
-        <tbody>
-          <DataInfoRegister serviceId={serviceId} />
+        <tbody className="bg-white">
+          <DataInfoAdd serviceId={serviceId} />
           {registeredDatas &&
             registeredDatas.map((data) => (
-              <DataInfoEdit key={data.id} dataInfo={data} />
+              <DataInfoAdd key={data.id} dataInfo={data} />
             ))}
         </tbody>
       </table>

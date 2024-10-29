@@ -1,30 +1,48 @@
 "use client";
 
-import { insertDataInfo } from "@/actions/serviceData";
+import {
+  deleteDataInfoById,
+  insertDataInfo,
+  updateDataInfoById,
+} from "@/actions/serviceData";
 import { columnDataTypes } from "@/lib/columnDataTypes";
-import { headerPair, Metadata } from "@/utils/types";
+import { DataInfo, headerPair, Metadata } from "@/utils/types";
+import { LoaderCircleIcon } from "lucide-react";
 import { useState } from "react";
 
-type DataInfoRegisterProps = {
-  serviceId: string;
+type DataInfoAddProps = {
+  serviceId?: string;
+  dataInfo?: DataInfo;
 };
 
-export default function DataInfoRegister({ serviceId }: DataInfoRegisterProps) {
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [headerPairs, setHeaderPairs] = useState<headerPair[]>([
-    { id: Date.now(), key: "", value: "" },
-  ]);
-  const [metadatas, setMetadatas] = useState<Metadata[]>([
-    {
-      columnName: "데이터 생성 시간은 필수 값입니다.",
-      description: "created_at",
-      type: "string",
-      example: "2024-09-30 01:46:43.775468+00",
-    },
-  ]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
+  const [title, setTitle] = useState(dataInfo ? dataInfo.title : "");
+  const [url, setUrl] = useState(dataInfo ? dataInfo.url : "");
+  const [headerPairs, setHeaderPairs] = useState<headerPair[]>(
+    dataInfo ? dataInfo.headers : [{ id: Date.now(), key: "", value: "" }]
+  );
+  const [metadatas, setMetadatas] = useState<Metadata[]>(
+    dataInfo
+      ? dataInfo.metadata
+      : [
+          {
+            columnName: "데이터 생성 시간은 필수 값입니다.",
+            description: "created_at",
+            type: "string",
+            example: "2024-09-30 01:46:43.775468+00",
+          },
+        ]
+  );
+  const [isLoading, setIsLoading] = useState({
+    create: false,
+    update: false,
+    delete: false,
+  });
+  const [isError, setIsError] = useState({
+    create: false,
+    update: false,
+    delete: false,
+  });
 
   const addMetadata = () => {
     const newMetadatas = [
@@ -88,10 +106,10 @@ export default function DataInfoRegister({ serviceId }: DataInfoRegisterProps) {
   };
 
   const handleRegister = async () => {
-    if (serviceId === "0") {
+    if (!serviceId || serviceId === "0") {
       return;
     }
-    setIsLoading(true);
+    setIsLoading({ ...isLoading, create: true });
     const response = await insertDataInfo(
       serviceId,
       title,
@@ -100,18 +118,46 @@ export default function DataInfoRegister({ serviceId }: DataInfoRegisterProps) {
       metadatas
     );
 
-    if (!response) {
-      setError("저장에 실패했습니다.");
-    } else {
-      setError(null);
-      setTitle("");
-      setUrl("");
-      setHeaderPairs([{ id: Date.now(), key: "", value: "" }]);
-      setMetadatas([]);
-    }
-    setIsLoading(false);
+    setIsError({ ...isError, create: !response });
+    setTitle("");
+    setUrl("");
+    setHeaderPairs([{ id: Date.now(), key: "", value: "" }]);
+    setMetadatas([
+      {
+        columnName: "데이터 생성 시간은 필수 값입니다.",
+        description: "created_at",
+        type: "string",
+        example: "2024-09-30 01:46:43.775468+00",
+      },
+    ]);
+
+    setIsLoading({ ...isLoading, create: false });
   };
 
+  const handleEdit = async () => {
+    if (!dataInfo) return;
+    setIsLoading({ ...isLoading, update: true });
+    const response = await updateDataInfoById(
+      dataInfo.id,
+      title,
+      url,
+      headerPairs,
+      metadatas
+    );
+    setIsError({ ...isError, update: !response });
+    setIsLoading({ ...isLoading, update: false });
+  };
+
+  const handleDelete = async () => {
+    if (!dataInfo) return;
+    const result = confirm("정말 삭제하시겠어요?");
+    if (result) {
+      setIsLoading({ ...isLoading, delete: true });
+      const response = await deleteDataInfoById(dataInfo.id);
+      setIsError({ ...isError, delete: !response });
+      setIsLoading({ ...isLoading, delete: false });
+    }
+  };
   return (
     <tr>
       <td className="border border-black p-2 truncate w-[120px]">
@@ -250,14 +296,54 @@ export default function DataInfoRegister({ serviceId }: DataInfoRegisterProps) {
       </td>
       <td className="border border-black p-2 w-[120px]">-</td>
       <td>
-        <button
-          className="bg-green-400 text-white p-2"
-          onClick={handleRegister}
-          disabled={isLoading}
-        >
-          {isLoading ? "저장 중.." : "저장"}
-        </button>
-        {error && <p>{error}</p>}
+        {serviceId && (
+          <button
+            className={`bg-green-400 text-white rounded p-2 ${isLoading.create && "bg-[#CBCBCB]"}`}
+            onClick={handleRegister}
+            disabled={isLoading.create}
+          >
+            {isLoading.create ? (
+              <LoaderCircleIcon className="animate-spin" />
+            ) : (
+              "저장"
+            )}
+          </button>
+        )}
+        {dataInfo && (
+          <>
+            <button
+              onClick={handleEdit}
+              className={`bg-blue-500 text-white rounded p-2 ${isLoading.update && "bg-[#CBCBCB]"}`}
+              disabled={isLoading.update}
+            >
+              {isLoading.update ? (
+                <LoaderCircleIcon className="animate-spin" />
+              ) : (
+                "수정"
+              )}
+            </button>
+            <button
+              onClick={handleDelete}
+              className={`bg-red-500 text-white rounded p-2 ${isLoading.delete && "bg-[#CBCBCB]"}`}
+              disabled={isLoading.delete}
+            >
+              {isLoading.delete ? (
+                <LoaderCircleIcon className="animate-spin" />
+              ) : (
+                "삭제"
+              )}
+            </button>
+          </>
+        )}
+        {isError.create && (
+          <p className="text-red-400 text-[11px]">저장에 실패했습니다.</p>
+        )}
+        {isError.update && (
+          <p className="text-red-400 text-[11px]">수정에 실패했습니다.</p>
+        )}
+        {isError.delete && (
+          <p className="text-red-400 text-[11px]">삭제에 실패했습니다.</p>
+        )}
       </td>
     </tr>
   );
