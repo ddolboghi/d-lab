@@ -11,6 +11,7 @@ import {
 } from "@/utils/types";
 import { useEffect, useState } from "react";
 import ProgressCircle from "../ProgressCircle";
+import { LoaderCircle } from "lucide-react";
 
 type ExperimentConclusionProps = {
   experimentalDataInfo: DataInfoForConenct;
@@ -126,7 +127,12 @@ export default function ExperimentConclusion({
           </div>
         </div>
       )}
-      {!conclusion && <p>실험 진행 중... 로딩 컴포넌트</p>}
+      {!conclusion && (
+        <div className="flex flex-row items-center justify-center gap-1">
+          <p>실험 진행 중</p>
+          <LoaderCircle className="animate-spin h-[20px]" />
+        </div>
+      )}
     </div>
   );
 }
