@@ -16,6 +16,14 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: "/:path*-filter",
+        destination: `${process.env.NEXT_PUBLIC_SITE_URL}/:path*-filter`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
