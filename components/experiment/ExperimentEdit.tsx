@@ -15,7 +15,11 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import EditPencil from "../icons/EditPencil";
-import { PencilIcon, Trash2Icon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
+import {
+  MAX_EXPERIMENT_OVERVIEW,
+  MAX_EXPERIMENT_TITLE,
+} from "@/utils/constant";
 
 type ExperimentEditProps = {
   editContent: ExperimentForUpdate;
@@ -28,16 +32,34 @@ export default function ExperimentEdit({
 }: ExperimentEditProps) {
   const [showEdit, setShowEdit] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [title, setTitle] = useState(editContent.title);
+  const [overview, setOverview] = useState(editContent.overview);
   const router = useRouter();
 
   const handleShowEdit = () => {
     setShowEdit(!showEdit);
+    setError(null);
   };
 
   const handleEdit = async (formData: FormData) => {
     if (isEnd) {
       setError("실험이 종료되어 수정할 수 없습니다.");
       return;
+    }
+
+    const updatedTitle = formData.get("title");
+    const updatedOverview = formData.get("overview");
+
+    if (String(updatedTitle).length > MAX_EXPERIMENT_TITLE) {
+      setError("제목은 128자를 넘을 수 없습니다.");
+    }
+
+    if (String(updatedOverview).length > MAX_EXPERIMENT_OVERVIEW) {
+      setError("설명은 500자를 넘을 수 없습니다.");
+    }
+
+    if (String(updatedTitle).length < 1) {
+      formData.set("title", "제목 없음");
     }
 
     const response = await updateExperimentById(editContent.id, formData);
@@ -82,22 +104,32 @@ export default function ExperimentEdit({
                   실험 제목
                 </label>
                 <input
+                  type="text"
                   name="title"
-                  maxLength={128}
-                  defaultValue={editContent.title}
+                  value={title}
+                  maxLength={MAX_EXPERIMENT_TITLE}
+                  onChange={(e) => setTitle(e.target.value)}
                   className="text-[12px] border border-gray-300 rounded py-1 px-2 w-full placeholder:text-[12px]"
                 />
+                <p className="text-[#B6B6B6] text-[10px] w-full text-right">
+                  {title.length}/{MAX_EXPERIMENT_TITLE}
+                </p>
               </section>
               <section className="w-full">
                 <label className="font-medium text-[12px]" htmlFor="overview">
-                  실험 개요
+                  실험 설명
                 </label>
                 <textarea
+                  typeof="text"
                   name="overview"
-                  maxLength={500}
-                  defaultValue={editContent.overview}
+                  value={overview}
+                  maxLength={MAX_EXPERIMENT_OVERVIEW}
+                  onChange={(e) => setOverview(e.target.value)}
                   className="text-[12px] border border-gray-300 rounded py-1 px-2 w-full placeholder:text-[12px]"
                 />
+                <p className="text-[#B6B6B6] text-[10px] w-full text-right">
+                  {overview.length}/{MAX_EXPERIMENT_OVERVIEW}
+                </p>
               </section>
               <section className="w-full">
                 <label className="font-medium text-[12px]" htmlFor="goal">
@@ -105,6 +137,7 @@ export default function ExperimentEdit({
                 </label>
                 <input
                   name="goal"
+                  type="text"
                   defaultValue={editContent.goal}
                   className="text-[12px] border border-gray-300 rounded py-1 px-2 w-full placeholder:text-[12px]"
                 />

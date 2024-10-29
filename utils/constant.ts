@@ -1,1 +1,3 @@
 export const MAX_SERVICE_NAME = 128;
+export const MAX_EXPERIMENT_TITLE = 128;
+export const MAX_EXPERIMENT_OVERVIEW = 500;
