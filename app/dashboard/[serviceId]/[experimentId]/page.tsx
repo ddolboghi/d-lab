@@ -49,22 +49,14 @@ export default async function page({
 
   return (
     <main>
-      <nav>
-        <ul>
-          <li>
-            <ExperimentEdit
-              serviceId={serviceId}
-              editContent={editContent}
-              isEnd={endTime ? new Date() >= endTime : false}
-            />
-          </li>
-        </ul>
-      </nav>
-      <hr />
       <div className="pl-[40px] pr-[32px] pt-[26px]">
-        <h1 className="font-semibold text-[22px] mb-[33px]">
-          {experiment.title}
-        </h1>
+        <section className="flex flex-row items-center gap-4 mb-[33px]">
+          <h1 className="font-semibold text-[22px]">{experiment.title}</h1>
+          <ExperimentEdit
+            editContent={editContent}
+            isEnd={endTime ? new Date() >= endTime : false}
+          />
+        </section>
         <section className="flex flex-col gap-6 bg-[#FFF] rounded-[10px] px-[25px] pt-[30px] pb-[38px] mb-[29px]">
           <h2 className="font-semibold text-[19.25px]">실험 정보</h2>
           <div className="flex flex-col gap-[39px] items-start">
