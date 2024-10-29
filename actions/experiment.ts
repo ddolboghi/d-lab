@@ -16,7 +16,12 @@ export const insertExperiment = async (
   controlDataConditions: Condition[]
 ) => {
   let endTime = formData.get("endTime")
-    ? new Date(formData.get("endTime") as string).toISOString()
+    ? process.env.NODE_ENV === "production"
+      ? new Date(new Date(formData.get("endTime") as string)).toISOString()
+      : new Date(
+          new Date(formData.get("endTime") as string).getTime() +
+            9 * 60 * 60 * 1000
+        ).toISOString()
     : null;
   const rawFormData: Experiment = {
     title: formData.get("title") as string,
