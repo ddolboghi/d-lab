@@ -4,11 +4,15 @@ import { supabaseClient } from "@/lib/getSupabaseClient";
 import { ServiceWithId } from "@/utils/types";
 import { revalidateTag } from "next/cache";
 
-export const insertService = async (addServiceFormData: FormData) => {
+export const insertService = async (rawFormData: FormData) => {
   try {
+    const inputName = rawFormData.get("name") as string;
+    if (inputName.length < 1) {
+      rawFormData.set("name", "제목 없음");
+    }
     const { error } = await supabaseClient.from("service").insert([
       {
-        name: addServiceFormData.get("name"),
+        name: rawFormData.get("name"),
       },
     ]);
 
@@ -79,6 +83,11 @@ export const updateServiceById = async (
   formData: FormData
 ) => {
   try {
+    const inputName = formData.get("name") as string;
+    if (inputName.length < 1) {
+      formData.set("name", "제목 없음");
+    }
+
     const rawFormData = {
       name: formData.get("name"),
     };

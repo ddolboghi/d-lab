@@ -33,10 +33,7 @@ export default function ServiceInfo({ service }: ServiceInfoProps) {
     if (inputName.length >= MAX_SERVICE_NAME) {
       setError("128자를 넘을 수 없습니다.");
       return;
-    } else if (inputName.length < 1) {
-      formData.set("name", "제목 없음");
     }
-
     const response = await updateServiceById(service.id, formData);
     if (!response) {
       setError("수정에 실패했습니다.");

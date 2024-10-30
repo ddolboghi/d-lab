@@ -25,8 +25,6 @@ export default function AddService() {
     if (inputName.length >= MAX_SERVICE_NAME) {
       setError("128자를 넘을 수 없습니다.");
       return;
-    } else if (inputName.length < 1) {
-      formData.set("name", "제목 없음");
     }
     const response = await insertService(formData);
     if (!response) {
