@@ -7,10 +7,8 @@ export const dataFilteringFetch = async (
 ) => {
   try {
     if (rawData === null) throw new Error("rawData is null.");
-    const host =
-      process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_VERCEL_URL;
 
-    const metadataFilterResponse = await fetch(`${host}/api/metadata-filter`, {
+    const metadataFilterResponse = await fetch("/api/metadata-filter", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +27,7 @@ export const dataFilteringFetch = async (
 
     if (filteredData) {
       for (const condition of conditions) {
-        const stringFilterResponse = await fetch(`${host}/api/string-filter`, {
+        const stringFilterResponse = await fetch("/api/string-filter", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -46,7 +44,7 @@ export const dataFilteringFetch = async (
         const stringFilterJson = await stringFilterResponse.json();
         filteredData = stringFilterJson.filteredData;
 
-        const numberFilterResponse = await fetch(`${host}/api/number-filter`, {
+        const numberFilterResponse = await fetch("/api/number-filter", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -63,19 +61,16 @@ export const dataFilteringFetch = async (
         const numberFilterJson = await numberFilterResponse.json();
         filteredData = numberFilterJson.filteredData;
 
-        const booleanFilterResponse = await fetch(
-          `${host}/api/boolean-filter`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              data: filteredData,
-              condition: condition,
-            }),
-          }
-        );
+        const booleanFilterResponse = await fetch("/api/boolean-filter", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: filteredData,
+            condition: condition,
+          }),
+        });
 
         if (!booleanFilterResponse.ok)
           throw new Error(booleanFilterResponse.status.toString());
@@ -83,19 +78,16 @@ export const dataFilteringFetch = async (
         const booleanFilterJson = await booleanFilterResponse.json();
         filteredData = booleanFilterJson.filteredData;
 
-        const createdAtFilterResponse = await fetch(
-          `${host}/api/created-at-filter`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              data: filteredData,
-              condition: condition,
-            }),
-          }
-        );
+        const createdAtFilterResponse = await fetch("/api/created-at-filter", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: filteredData,
+            condition: condition,
+          }),
+        });
 
         if (!createdAtFilterResponse.ok)
           throw new Error(createdAtFilterResponse.status.toString());
