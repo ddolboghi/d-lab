@@ -165,11 +165,6 @@ export const createdAtFilter = (data: any[], condition: Condition) => {
 };
 
 export const endTimeFilter = (data: any[], endTimeString: string) => {
-  console.log(
-    data.length,
-    new Date(data[data.length - 1]["created_at"]),
-    stringToUTC(endTimeString)
-  );
   return data.filter(
     (d) => new Date(d["created_at"]) < new Date(endTimeString)
   );
