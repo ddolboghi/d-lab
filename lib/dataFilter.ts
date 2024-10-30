@@ -1,4 +1,5 @@
 import { Condition, Metadata } from "@/utils/types";
+import { stringToUTC } from "./dateTranslator";
 
 export const toSet = (array: any[]): Set<string> | Set<boolean> | Set<any> => {
   if (array.length > 0) {
@@ -161,4 +162,15 @@ export const createdAtFilter = (data: any[], condition: Condition) => {
     return true;
   });
   return filteredData;
+};
+
+export const endTimeFilter = (data: any[], endTimeString: string) => {
+  console.log(
+    data.length,
+    new Date(data[data.length - 1]["created_at"]),
+    stringToUTC(endTimeString)
+  );
+  return data.filter(
+    (d) => new Date(d["created_at"]) < new Date(endTimeString)
+  );
 };
