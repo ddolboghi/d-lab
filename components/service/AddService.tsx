@@ -21,10 +21,12 @@ export default function AddService() {
     event.preventDefault();
     setIsLoading(true);
     const formData = new FormData(event.currentTarget);
-    const inputName = formData.get("name") as string;
+    let inputName = formData.get("name") as string;
     if (inputName.length >= MAX_SERVICE_NAME) {
       setError("128자를 넘을 수 없습니다.");
       return;
+    } else if (inputName.length < 1) {
+      formData.set("name", "제목 없음");
     }
     const response = await insertService(formData);
     if (!response) {
@@ -41,7 +43,10 @@ export default function AddService() {
       <DialogTrigger className="mx-8 my-8 w-[100px] h-[20px] text-white text-[10px] font-medium rounded-full bg-[#5C5C5C]">
         + New Project
       </DialogTrigger>
-      <DialogContent className="bg-white border-none rounded-full sm:max-w-[425px]">
+      <DialogContent
+        className="bg-white border-none rounded-full sm:max-w-[425px]"
+        aria-describedby={undefined}
+      >
         <DialogHeader>
           <DialogTitle>프로젝트 만들기</DialogTitle>
         </DialogHeader>
