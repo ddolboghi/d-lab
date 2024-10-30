@@ -15,6 +15,7 @@ export default function AddService() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState("");
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -53,9 +54,14 @@ export default function AddService() {
               name="name"
               minLength={1}
               placeholder="프로젝트 이름을 입력해주세요."
-              maxLength={128}
+              maxLength={MAX_SERVICE_NAME}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="border border-gray-300 rounded py-1 px-2 w-full placeholder:text-[12px]"
             />
+            <p className="w-full text-[#B6B6B6] text-[11px] text-right">
+              {name.length}/{MAX_SERVICE_NAME}
+            </p>
             {error && <p className="text-red-400 text-[12px]">{error}</p>}
           </div>
           <button
