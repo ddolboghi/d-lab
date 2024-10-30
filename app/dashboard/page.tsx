@@ -8,7 +8,7 @@ export default async function DashboardPage() {
   const services = await selectAllService();
 
   return (
-    <div className="">
+    <div>
       <h1 className="font-bold text-[22px] pl-8 pt-[20px]">Projects</h1>
       <AddService />
       <ul className="list-none grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 items-start justify-center gap-[50px] px-8 pb-8 w-full">
