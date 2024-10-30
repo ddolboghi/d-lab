@@ -58,10 +58,6 @@ export default function ExperimentEdit({
       setError("설명은 500자를 넘을 수 없습니다.");
     }
 
-    if (String(updatedTitle).length < 1) {
-      formData.set("title", "제목 없음");
-    }
-
     const response = await updateExperimentById(editContent.id, formData);
     if (response) {
       setError(null);

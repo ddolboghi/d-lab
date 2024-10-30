@@ -106,6 +106,10 @@ export const updateExperimentById = async (
   formData: FormData
 ) => {
   try {
+    const inputTitle = formData.get("title") as string;
+    if (inputTitle.length < 1) {
+      formData.set("title", "제목 없음");
+    }
     const rawFormData = {
       title: formData.get("title"),
       overview: formData.get("overview"),
