@@ -165,7 +165,7 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
           type="text"
           name="title"
           value={title}
-          className="border border-gray-300 rounded p-1 w-full"
+          className="text-[12px] pl-1 border border-gray-300 rounded p-1 w-full"
           onChange={(e) => setTitle(e.target.value)}
         />
       </td>
@@ -175,7 +175,7 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
           name="apiEndpoint"
           value={url}
           placeholder="https://..."
-          className="border border-gray-300 rounded p-1 w-full"
+          className="text-[12px] pl-1 border border-gray-300 rounded p-1 w-full"
           onChange={(e) => handleUrlChange(e.target.value)}
         />
       </td>
@@ -185,14 +185,14 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
             <input
               type="text"
               value={headerPair.key}
-              className="border border-gray-300 rounded truncate"
+              className="text-[12px] pl-1 border border-gray-300 rounded truncate"
               onChange={(e) => updatePair(headerPair.id, "key", e.target.value)}
               placeholder="Key"
             />
             <input
               type="text"
               value={headerPair.value}
-              className="border border-gray-300 rounded truncate"
+              className="text-[12px] pl-1 border border-gray-300 rounded truncate"
               onChange={(e) =>
                 updatePair(headerPair.id, "value", e.target.value)
               }
@@ -200,7 +200,7 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
             />
             <button
               onClick={() => removePair(headerPair.id)}
-              className="bg-red-500 text-white rounded p-1 ml-2"
+              className="bg-red-500 text-white rounded p-1 w-[20px] h-auto ml-2"
             >
               X
             </button>
@@ -208,20 +208,23 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
         ))}
         <button
           onClick={addPair}
-          className="bg-blue-500 rounded text-white p-2"
+          className="bg-blue-500 rounded text-white w-[30px] h-[20px] leading-3 p-1"
         >
           +
         </button>
       </td>
-      <td className="border border-black p-2 w-[120px] truncate ">
+      <td className="border border-black p-2 w-[120px] truncate">
         {metadatas.map((metadata, idx) => (
-          <div key={idx} className="flex flex-row items-center">
-            <div className="flex flex-col mb-2">
-              <div className="flex flex-row">
-                <label>컬럼명</label>
+          <div
+            key={idx}
+            className="flex flex-row items-center border rounded p-2 mb-1 w-[300px]"
+          >
+            <div className="flex flex-col gap-1">
+              <div className="grid grid-cols-2">
+                <label className="text-[14px]">데이터 이름(컬럼명)</label>
                 <input
                   type="text"
-                  className="border border-gray-300 rounded"
+                  className="text-[12px] border border-gray-300 rounded pl-1"
                   value={metadata.columnName}
                   placeholder=""
                   onChange={(e) =>
@@ -229,11 +232,11 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
                   }
                 />
               </div>
-              <div className="flex flex-row">
-                <label>설명</label>
+              <div className="grid grid-cols-2">
+                <label className="text-[14px]">설명</label>
                 <input
                   type="text"
-                  className={`${metadata.description === "created_at" && "bg-gray-200"} border border-gray-300 rounded`}
+                  className={`${metadata.description === "created_at" && "bg-gray-200"} border border-gray-300 rounded text-[12px] pl-1`}
                   value={metadata.description}
                   readOnly={
                     metadata.description === "created_at" ? true : false
@@ -243,8 +246,8 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
                   }
                 />
               </div>
-              <div className="flex flex-row">
-                <label>데이터 타입</label>
+              <div className="grid grid-cols-2">
+                <label className="text-[14px]">데이터 타입</label>
                 <select
                   name="type"
                   value={metadata.type}
@@ -254,6 +257,7 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
                   onChange={(e) =>
                     handleMetadataChange(idx, "type", e.target.value)
                   }
+                  className="border border-gray-300 rounded text-[12px]"
                 >
                   <option value="" disabled>
                     선택 안함
@@ -265,11 +269,11 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
                   ))}
                 </select>
               </div>
-              <div className="flex flex-row">
-                <label>예시</label>
+              <div className="grid grid-cols-2">
+                <label className="text-[14px]">예시</label>
                 <input
                   type="text"
-                  className="border border-gray-300 rounded"
+                  className="text-[12px] border border-gray-300 rounded pl-1"
                   value={metadata.example}
                   placeholder=""
                   onChange={(e) =>
@@ -278,24 +282,27 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
                 />
               </div>
             </div>
-            <button
-              className={`${metadata.description === "created_at" ? "bg-slate-400" : "bg-red-500"} text-white rounded p-1 w-1/4 h-1/4 ml-2`}
-              onClick={() => deleteMetadata(idx)}
-              disabled={metadata.description === "created_at" ? true : false}
-            >
-              X
-            </button>
+            {metadata.description !== "created_at" && (
+              <button
+                className="bg-red-500 text-white rounded p-1 w-[20px] h-auto ml-2"
+                onClick={() => deleteMetadata(idx)}
+              >
+                X
+              </button>
+            )}
           </div>
         ))}
         <button
-          className="bg-blue-500 rounded text-white p-2"
+          className="bg-blue-500 rounded text-white w-[30px] h-[20px] leading-3 p-1"
           onClick={addMetadata}
         >
           +
         </button>
       </td>
-      <td className="border border-black p-2 w-[120px]">-</td>
-      <td>
+      <td className="border border-black p-2 w-[120px]">
+        {dataInfo ? new Date(dataInfo.created_at).toLocaleString() : "-"}
+      </td>
+      <td className="border border-black">
         {serviceId && (
           <button
             className={`bg-green-400 text-white rounded p-2 ${isLoading.create && "bg-[#CBCBCB]"}`}
@@ -313,7 +320,7 @@ export default function DataInfoAdd({ serviceId, dataInfo }: DataInfoAddProps) {
           <>
             <button
               onClick={handleEdit}
-              className={`bg-blue-500 text-white rounded p-2 ${isLoading.update && "bg-[#CBCBCB]"}`}
+              className={`bg-sky-500 text-white rounded p-2 ${isLoading.update && "bg-[#CBCBCB]"}`}
               disabled={isLoading.update}
             >
               {isLoading.update ? (
