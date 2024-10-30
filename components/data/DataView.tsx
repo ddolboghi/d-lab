@@ -39,7 +39,8 @@ export default function DataView({
       const filteredData = await dataFilteringFetch(
         rawData,
         dataInfo.metadata,
-        conditions
+        conditions,
+        endTime
       );
 
       if (!filteredData) {
@@ -51,6 +52,7 @@ export default function DataView({
       setLoading(false);
     };
 
+    getFilteredData();
     const intervalId = setInterval(() => {
       const currentNow = new Date();
       if (endTime) {
