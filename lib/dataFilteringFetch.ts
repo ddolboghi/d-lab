@@ -1,9 +1,11 @@
 import { Condition, Metadata } from "@/utils/types";
+import { endTimeFilter } from "./dataFilter";
 
 export const dataFilteringFetch = async (
   rawData: any[] | null,
   metadatas: Metadata[],
-  conditions: Condition[]
+  conditions: Condition[],
+  endTimeString: string | null
 ) => {
   try {
     if (rawData === null) throw new Error("rawData is null.");
@@ -102,6 +104,10 @@ export const dataFilteringFetch = async (
         new Date(b["created_at"]).getTime()
       );
     });
+
+    if (endTimeString !== null) {
+      return endTimeFilter(sortedData, endTimeString);
+    }
 
     return sortedData;
   } catch (e) {
