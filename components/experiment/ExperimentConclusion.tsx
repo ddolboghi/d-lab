@@ -48,12 +48,14 @@ export default function ExperimentConclusion({
         const experimentFilteredData = await dataFilteringFetch(
           experimentData,
           experimentalDataInfo.metadata,
-          experiment.experimental_data_conditions
+          experiment.experimental_data_conditions,
+          endTime.toString()
         );
         const controlFilteredData = await dataFilteringFetch(
           controlData,
           controlDataInfo.metadata,
-          experiment.control_data_conditions
+          experiment.control_data_conditions,
+          endTime.toString()
         );
 
         const controlValue = controlFilteredData
