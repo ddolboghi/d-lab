@@ -38,7 +38,7 @@ export default function AddService() {
 
   return (
     <Dialog open={showForm} onOpenChange={setShowForm}>
-      <DialogTrigger className="mx-8 my-8 w-[100px] h-[20px] text-white text-[10px] font-medium rounded-full bg-[#5C5C5C]">
+      <DialogTrigger className="my-8 w-[100px] h-[20px] text-white text-[10px] font-medium rounded-full bg-[#5C5C5C]">
         + New Project
       </DialogTrigger>
       <DialogContent
