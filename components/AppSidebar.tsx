@@ -1,15 +1,18 @@
-import { Home, Database, ChevronDown } from "lucide-react";
+"use client";
 
+import { Home, Database, ChevronDown } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { ServiceWithId } from "@/utils/types";
@@ -18,9 +21,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import DLabLogo from "./icons/DLabLogo";
+import { useEffect, useState } from "react";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
-// Menu items.
-const items = [
+const menu = [
   {
     title: "Home",
     url: "/dashboard",
@@ -34,18 +39,77 @@ type AppSidebarProps = {
 };
 
 export default function AppSidebar({ allServices }: AppSidebarProps) {
+  const {
+    state,
+    open,
+    setOpen,
+    openMobile,
+    setOpenMobile,
+    isMobile,
+    toggleSidebar,
+  } = useSidebar();
+  const [isClicked, setIsClicked] = useState(
+    Object.fromEntries([
+      ...menu.map((m) => [m.title, false]),
+      ...(allServices?.map((service) => [service.id, false]) ?? []),
+    ])
+  );
+  const pathname = usePathname();
+  const params = useParams<{ serviceId: string; experimentId: string }>();
+
+  const resetState = () => {
+    return Object.keys(isClicked).reduce<Record<string, boolean>>(
+      (obj, key) => {
+        obj[key] = false;
+        return obj;
+      },
+      {}
+    );
+  };
+  useEffect(() => {
+    if (pathname === "/dashboard") {
+      const resetedClick = resetState();
+      setIsClicked({ ...resetedClick, Home: true });
+    } else if (pathname.endsWith("/data")) {
+      const serviceId = params.serviceId;
+      const resetedClick = resetState();
+      setIsClicked({ ...resetedClick, [serviceId]: true });
+    }
+  }, [pathname]);
+  console.log(isClicked);
   return (
-    <Sidebar className="bg-white border-none ease-out" collapsible="icon">
-      <SidebarContent className="bg-white">
-        <SidebarGroup className="bg-white">
+    <Sidebar className="border-none ease-out bg-[#101010]" collapsible="icon">
+      <SidebarHeader className="bg-[#101010]">
+        <SidebarMenuButton asChild className="hover:bg-[#101010]">
+          <Link href="/dashboard" className="flex flex-row items-center p-2">
+            <DLabLogo
+              className={`${open ? "!w-[35px] !h-[39.23px]" : "!w-[30px] !h-[33.62px]"} fill-[#101010] transition-all duration-100 -translate-x-2`}
+            />
+            <span className="text-[#E5E5E5] font-bold text-[20px] pl-1">
+              D-Lab
+            </span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarHeader>
+      <SidebarContent className="bg-[#101010]">
+        <SidebarGroup className="bg-[#101010]">
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {menu.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    className={`hover:bg-[#101010] hover:rounded-[10px] ${isClicked["Home"] && "bg-[#FFF] rounded-[10px] hover:bg-white"}`}
+                  >
                     <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
+                      <item.icon
+                        className={`text-[#E5E5E5] ${isClicked["Home"] && "text-[#3B82F6]"}`}
+                      />
+                      <span
+                        className={`text-[#E5E5E5] ${isClicked["Home"] && "text-[#212121]"}`}
+                      >
+                        {item.title}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -53,9 +117,19 @@ export default function AppSidebar({ allServices }: AppSidebarProps) {
               <Collapsible defaultOpen className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
-                      <Database />
-                      <span>Data</span>
+                    <SidebarMenuButton
+                      className={`data-[state=open]:hover:bg-[#101010] data-[state=open]:hover:text-[#E5E5E5] data-[state=closed]:hover:bg-[#101010] data-[state=closed]:hover:text-[#E5E5E5]
+                      ${isClicked["Home"] || "bg-[#FFF] rounded-[10px] data-[state=open]:hover:bg-[#FFF] data-[state=closed]:hover:bg-[#FFF]"}
+                      `}
+                    >
+                      <Database
+                        className={`text-[#E5E5E5] ${isClicked["Home"] || "text-[#3B82F6]"}`}
+                      />
+                      <span
+                        className={`text-[#E5E5E5] ${isClicked["Home"] || "text-[#212121]"}`}
+                      >
+                        Data
+                      </span>
                       <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -64,9 +138,16 @@ export default function AppSidebar({ allServices }: AppSidebarProps) {
                       {allServices &&
                         allServices.map((service) => (
                           <SidebarMenuSubItem key={service.id}>
-                            <SidebarMenuButton asChild>
+                            <SidebarMenuButton
+                              asChild
+                              className="hover:bg-[#101010] hover:rounded-[10px] p-0"
+                            >
                               <Link href={`/dashboard/${service.id}/data`}>
-                                <span>{service.name}</span>
+                                <span
+                                  className={`flex items-center pl-2 text-[#E5E5E5] size-full ${isClicked[service.id] && "bg-[#FFF] text-[#212121] rounded-[10px]"}`}
+                                >
+                                  {service.name}
+                                </span>
                               </Link>
                             </SidebarMenuButton>
                           </SidebarMenuSubItem>
