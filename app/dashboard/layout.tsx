@@ -18,7 +18,7 @@ export default async function layout({
   return (
     <SidebarProvider>
       <AppSidebar allServices={allServices} />
-      <main className="bg-[#101010] w-full">
+      <main className="bg-[#101010]">
         <Navbar userName={userName} userEmail={userEmail} />
         {children}
       </main>

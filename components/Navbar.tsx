@@ -28,8 +28,8 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
   }
 
   return (
-    <div className="bg-[#101010] sticky top-0 left-0 z-[5]">
-      <nav className=" bg-white w-full h-[50px] border-b-[1.5px] border-[#DFE3EC] rounded-tl-[30px] flex flex-row justify-between items-center">
+    <div className="fixed top-0 left-50 z-10 bg-[#101010] w-full">
+      <nav className="bg-white w-full h-[50px] border-b-[1.5px] border-[#DFE3EC] rounded-tl-[30px] flex flex-row justify-between items-center pl-2 pr-14">
         <SidebarTrigger />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
