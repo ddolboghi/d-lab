@@ -103,10 +103,10 @@ export default function AppSidebar({ allServices }: AppSidebarProps) {
                   >
                     <Link href={item.url}>
                       <item.icon
-                        className={`text-[#E5E5E5] ${isClicked["Home"] && "text-[#3B82F6]"}`}
+                        className={`${isClicked["Home"] ? "text-[#3B82F6]" : "text-[#E5E5E5]"}`}
                       />
                       <span
-                        className={`text-[#E5E5E5] ${isClicked["Home"] && "text-[#212121]"}`}
+                        className={`${isClicked["Home"] ? "text-[#212121]" : "text-[#E5E5E5]"}`}
                       >
                         {item.title}
                       </span>
@@ -123,10 +123,10 @@ export default function AppSidebar({ allServices }: AppSidebarProps) {
                       `}
                     >
                       <Database
-                        className={`text-[#E5E5E5] ${isClicked["Home"] || "text-[#3B82F6]"}`}
+                        className={`${isClicked["Home"] ? "text-[#E5E5E5]" : "text-[#3B82F6]"}`}
                       />
                       <span
-                        className={`text-[#E5E5E5] ${isClicked["Home"] || "text-[#212121]"}`}
+                        className={`${isClicked["Home"] ? "text-[#E5E5E5]" : "text-[#212121]"}`}
                       >
                         Data
                       </span>
@@ -144,7 +144,7 @@ export default function AppSidebar({ allServices }: AppSidebarProps) {
                             >
                               <Link href={`/dashboard/${service.id}/data`}>
                                 <span
-                                  className={`flex items-center pl-2 text-[#E5E5E5] size-full ${isClicked[service.id] && "bg-[#FFF] text-[#212121] rounded-[10px]"}`}
+                                  className={`flex items-center pl-2 size-full ${isClicked[service.id] ? "bg-[#FFF] text-[#212121] rounded-[10px]" : "text-[#E5E5E5]"}`}
                                 >
                                   {service.name}
                                 </span>
