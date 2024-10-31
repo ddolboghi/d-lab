@@ -8,15 +8,15 @@ export default async function DashboardPage() {
   const services = await selectAllService();
 
   return (
-    <div>
+    <div className="rounded-bl-[30px] bg-[#FFF]">
       <h1 className="font-bold text-[22px] pl-8 pt-[20px]">Projects</h1>
       <AddService />
-      <ul className="list-none grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 items-start justify-center gap-[50px] px-8 pb-8 w-full">
+      <ul className="list-none grid grid-rows-1 grid-flow-col auto-cols-max gap-[50px] pl-8 pb-8 w-full">
         {services ? (
           services.map((service) => (
             <li
               key={service.id}
-              className="relative rounded-[6px] bg-white w-[300px] text-center px-4 flex flex-col min-h-[100px]"
+              className="relative rounded-[25px] bg-[#F0F2F5] w-[300px] text-center px-4  min-h-[100px]"
             >
               <ServiceInfo service={service} />
               <ExperimentRegister serviceId={service.id} />
