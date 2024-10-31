@@ -20,7 +20,7 @@ export default async function ExperimentBox({
   return (
     <Link
       href={`/dashboard/${serviceId}/${experiment.id}`}
-      className="absolute h-full w-full text-center left-0 flex items-start bg-[#F4F4F4] rounded-[5px] p-2"
+      className="absolute h-full w-full text-center left-0 flex items-start bg-[#FFF] rounded-[5px] p-2"
     >
       <p className="font-medium text-[12px]">{experiment.title}</p>
       <span className="absolute bottom-0 right-0 text-[8px] font-medium p-2 flex items-center justify-center gap-1">

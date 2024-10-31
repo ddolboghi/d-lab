@@ -11,7 +11,7 @@ export default async function page({
   const service = await selectServiceById(Number(serviceId));
   const registeredDatas = await selectDataInfoByServiceId(Number(serviceId));
   return (
-    <main>
+    <main className="bg-[#FFF] rounded-bl-[30px]">
       <h1 className="font-bold text-[22px] pl-8 py-[20px]">
         {service ? service.name : "제목 없는 프로젝트"}
       </h1>
@@ -35,7 +35,7 @@ export default async function page({
             <th className="border border-black p-2 w-[120px]">편집</th>
           </tr>
         </thead>
-        <tbody className="bg-white">
+        <tbody>
           <DataInfoAdd serviceId={serviceId} />
           {registeredDatas &&
             registeredDatas.map((data) => (

@@ -48,7 +48,7 @@ export default async function page({
   };
 
   return (
-    <main className="pl-[40px] pr-[32px] pt-[26px]">
+    <main className="pl-[40px] pr-[32px] pt-[26px] pb-[40px] bg-[#FFF] rounded-bl-[30px]">
       <section className="flex flex-row items-center gap-4 mb-[33px]">
         <h1 className="font-semibold text-[22px]">{experiment.title}</h1>
         <ExperimentEdit
@@ -56,7 +56,7 @@ export default async function page({
           isEnd={endTime ? new Date() >= endTime : false}
         />
       </section>
-      <section className="flex flex-col gap-6 bg-[#FFF] rounded-[10px] px-[25px] pt-[30px] pb-[38px] mb-[29px]">
+      <section className="flex flex-col gap-6 bg-[#F6F8FA] rounded-[10px] px-[25px] pt-[30px] pb-[38px] mb-[29px]">
         <h2 className="font-semibold text-[19.25px]">실험 정보</h2>
         <div className="flex flex-col gap-[39px] items-start">
           <div className="flex flex-row pl-3">
@@ -104,7 +104,7 @@ export default async function page({
           </div>
         </div>
       </section>
-      <section className="flex flex-col gap-6 bg-[#FFF] rounded-[10px] px-[25px] pt-[30px] pb-[38px] mb-[29px]">
+      <section className="flex flex-col gap-6 bg-[#F6F8FA] rounded-[10px] px-[25px] pt-[30px] pb-[38px] mb-[29px]">
         <h2 className="font-semibold text-[19.25px]">데이터</h2>
         <div>
           <h3 className="font-semibold text-[14px]">실험하고 싶은 대상</h3>
@@ -135,7 +135,7 @@ export default async function page({
           </div>
         </div>
       </section>
-      <section className="flex flex-col gap-4 bg-[#FFF] rounded-[10px] px-[36px] pt-[24px] pb-[50px] mb-[100px]">
+      <section className="flex flex-col gap-4 bg-[#F6F8FA] rounded-[10px] px-[36px] pt-[24px] pb-[50px]">
         <h2 className="font-semibold text-[19.25px]">결과</h2>
         {experimentalDataInfo === null || controlDataInfo === null ? (
           <p>결론을 계산할 수 없습니다.</p>
